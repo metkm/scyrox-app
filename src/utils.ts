@@ -5,22 +5,51 @@ export const getCrc = (buffer: Uint8Array<ArrayBuffer>) => {
     crc += buffer[i];
   }
 
-  crc = crc & 0xFF;
+  crc = crc & 0xff;
   crc = 0x55 - crc;
 
   return crc;
-}
+};
 
 export const bufferToColor = (buffer: number[]) => {
-  let result = '#'
+  let result = "#";
 
   for (let index = 0; index < buffer.length; index++) {
-    result += buffer[index].toString(16).padStart(2, '0')
+    result += buffer[index].toString(16).padStart(2, "0");
   }
 
-  return result
-}
+  return result;
+};
+
+var voltages = [
+  3050, 3420, 3480, 3540, 3600, 3660, 3720, 3760, 3800, 3840, 3880, 3920, 3940, 3960, 3980, 4000,
+  4020, 4040, 4060, 4080, 4110,
+];
+
+export const voltageToBatteryLevel = (voltage: number) => {
+  let voltageIndex = -1
+  let level = 0
+
+  for (let index = 0; index < voltages.length; index++) {
+    if (voltage > voltages[index]) {
+      continue;
+    }
+
+    voltageIndex = index
+    break
+  }
+
+  if (voltageIndex === 0) {
+    level = 0
+  } else {
+    const interval = (voltages[voltageIndex] - voltages[voltageIndex - 1]) / 5
+    level = (voltage - voltages[voltageIndex]) / interval + (voltageIndex - 1) * 5
+  }
+
+  // level = Math.round(level)
+  return level
+};
 
 export const sleep = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};

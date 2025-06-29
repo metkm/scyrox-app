@@ -40,7 +40,12 @@ export const mouseEepromAddr = {
   DPIEffectBrightness: 0x4E,//DPI灯效亮度
   DPIEffectSpeed: 0x50,//DPI灯效亮度
   DPIEffectState: 0x52,//DPI灯效亮度
-  Light: 0xA0,//装饰灯
+  LightEffectMode: 0xA0,//装饰灯
+  LightEffectColor: 0xA1,//装饰灯
+  LightEffectSpeed: 0xA4,//装饰灯
+  LightEffectBrightness: 0xA5,//装饰灯
+  LightEffectState: 0xA7,//装饰灯
+  LightEffectTime: 0xAD,//装饰灯
   DebounceTime: 0xA9,//按钮消抖
   MotionSync: 0xAB,
   SleepTime: 0xAD,//休眠时间

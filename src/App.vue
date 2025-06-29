@@ -3,7 +3,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { onMounted, reactive, ref } from "vue";
 import { getDevice, readDeviceEeprom, readDeviceFullEeprom } from "./device";
 import { commands, mouseEepromAddr, reportId } from "./constants";
-import { bufferToColor } from "./utils";
+import { bufferToColor, sleep, voltageToBatteryLevel } from "./utils";
 
 const flashData: number[] = []
 
@@ -13,8 +13,35 @@ const deviceData = reactive({
   version: '',
   batteryLevel: 0,
   batteryCharging: false,
-  batteryChargingVoltage: 0,
-  dpiValues: [] as { value: number, color: string }[]
+  batteryVoltage: 0,
+  dpiValues: [] as { value: number, color: string }[],
+  currentDpiIndex: 0,
+  maxDpi: 0,
+  reportRate: 1000,
+  dpiEffect: {
+    mode: 0,
+    brightness: 0,
+    speed: 0,
+    state: 0,
+  },
+  lightEffect: {
+    mode: 0,
+    color: 0,
+    speed: 0,
+    brightness: 0,
+    state: 0,
+    time: 0,
+  },
+  debounceTime: 0,
+  sensor: {
+    motionSync: 0,
+    sleepTime: 0,
+    angle: 0,
+    ripple: 0,
+    performance: 0,
+    mode: 0,
+  },
+  movingOffLight: 0,
 })
 
 onMounted(() => {
@@ -30,9 +57,10 @@ const handleInputReport = async (event: HIDInputReportEvent) => {
 
   switch (data[0]) {
     case commands.BatteryLevel:
-      deviceData.batteryLevel = slice[0]
       deviceData.batteryCharging = slice[1] === 1
-      deviceData.batteryChargingVoltage = slice[2] << 8 + slice[3]
+      deviceData.batteryVoltage = (slice[2] << 8) + slice[3]
+      // deviceData.batteryLevel = slice[0]
+      deviceData.batteryLevel = voltageToBatteryLevel(deviceData.batteryVoltage)
       break;
     case commands.GetDongleVersion:
       deviceData.version = `${slice[0]}.${slice[1].toString(16).padStart(2, '0')}`
@@ -51,6 +79,10 @@ const handleInputReport = async (event: HIDInputReportEvent) => {
 }
 
 const parseReadDeviceEeprom = () => {
+  deviceData.maxDpi = flashData[mouseEepromAddr.MaxDPI]
+  deviceData.currentDpiIndex = flashData[mouseEepromAddr.CurrentDPI]
+  deviceData.reportRate = flashData[0] > 0x10 ? (flashData[0] / 0x10) * 2000 : 1000 / flashData[0]
+
   // fill dpi values
   for (let index = 0; index < 8; index++) {
     const dpiAddr = index * 4 + mouseEepromAddr.DPIValue
@@ -70,6 +102,28 @@ const parseReadDeviceEeprom = () => {
     }
   }
   // fill dpi values end
+
+  deviceData.dpiEffect.mode = flashData[mouseEepromAddr.DPIEffectMode]
+  deviceData.dpiEffect.brightness = flashData[mouseEepromAddr.DPIEffectBrightness]
+  deviceData.dpiEffect.speed = flashData[mouseEepromAddr.DPIEffectSpeed]
+  deviceData.dpiEffect.state = flashData[mouseEepromAddr.DPIEffectState]
+
+  deviceData.lightEffect.mode = flashData[mouseEepromAddr.LightEffectMode]
+  deviceData.lightEffect.brightness = flashData[mouseEepromAddr.LightEffectBrightness]
+  deviceData.lightEffect.speed = flashData[mouseEepromAddr.LightEffectSpeed]
+  deviceData.lightEffect.state = flashData[mouseEepromAddr.LightEffectState]
+  deviceData.lightEffect.time = flashData[mouseEepromAddr.LightEffectTime]
+  deviceData.lightEffect.color = flashData[mouseEepromAddr.LightEffectColor]
+
+  deviceData.debounceTime = flashData[mouseEepromAddr.DebounceTime]
+  deviceData.sensor.motionSync = flashData[mouseEepromAddr.MotionSync]
+  deviceData.sensor.sleepTime = flashData[mouseEepromAddr.SleepTime]
+  deviceData.sensor.angle = flashData[mouseEepromAddr.Angle]
+  deviceData.sensor.ripple = flashData[mouseEepromAddr.Ripple]
+  deviceData.sensor.performance = flashData[mouseEepromAddr.Ripple]
+  deviceData.sensor.mode = flashData[mouseEepromAddr.SensorMode]
+
+  deviceData.movingOffLight = flashData[mouseEepromAddr.MovingOffLight]
 }
 
 const requestDevice = async () => {
@@ -87,6 +141,7 @@ const requestDevice = async () => {
   await readDeviceEeprom(device, commands.GetDongleVersion, 0, [])
   await readDeviceEeprom(device, commands.BatteryLevel, 0, [])
 
+  await sleep(50)
   await readDeviceFullEeprom(device)
   parseReadDeviceEeprom()
 
@@ -99,7 +154,10 @@ const requestDevice = async () => {
     <button @click="requestDevice">request device</button>
 
     <p>reading: {{ reading }}</p>
-    <p>{{ deviceData }}</p>
+    
+    <pre>
+      {{ JSON.stringify(deviceData, undefined, 2) }}
+    </pre>
   </main>
 </template>
 
@@ -112,6 +170,7 @@ const requestDevice = async () => {
   filter: drop-shadow(0 0 2em #249b73);
 }
 </style>
+
 <style>
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
@@ -131,11 +190,8 @@ const requestDevice = async () => {
 
 .container {
   margin: 0;
-  padding-top: 10vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  text-align: center;
 }
 
 .logo {

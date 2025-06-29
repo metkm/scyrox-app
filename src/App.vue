@@ -3,6 +3,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { onMounted, reactive, ref } from "vue";
 import { getDevice, readDeviceEeprom, readDeviceFullEeprom } from "./device";
 import { commands, mouseEepromAddr, reportId } from "./constants";
+import { bufferToColor } from "./utils";
 
 const flashData: number[] = []
 
@@ -43,26 +44,6 @@ const handleInputReport = async (event: HIDInputReportEvent) => {
         flashData[addr + index] = slice[index]
       }
 
-      // if (addr === mouseEepromAddr.CurrentDPI) {
-      //   for (let index = 0; index < 8; index++) {
-      //     const dpiAddr = index * 4 + mouseEepromAddr.DPIValue
-
-      //     const lowBits = flashData[dpiAddr]
-      //     const highBits = flashData[dpiAddr + 2]
-
-      //     const masked = highBits * mouseEepromAddr.DPIValue
-      //     const high = masked >> 2
-
-      //     let value = lowBits + (high << 8)
-      //     value = (value + 1) * 50
-
-      //     deviceData.dpiValues[index] = {
-      //       value,
-      //       color: ''
-      //     }
-      //   }
-      // }
-
       break;
     default:
       break;
@@ -85,7 +66,7 @@ const parseReadDeviceEeprom = () => {
 
     deviceData.dpiValues[index] = {
       value,
-      color: ''
+      color: bufferToColor(flashData.slice(dpiAddr + mouseEepromAddr.DPIColor, dpiAddr + mouseEepromAddr.DPIColor + 3))
     }
   }
   // fill dpi values end
@@ -95,24 +76,19 @@ const requestDevice = async () => {
   const device = await getDevice()
   if (!device) return
 
-  // device.removeEventListener('inputreport', handleInputReport)
-  // device.addEventListener('inputreport', handleInputReport)
   if (!device.opened) {
     await device.open()
   }
 
   device.oninputreport = handleInputReport
-
-  // await writeCommand(device, commands.PCDriverStatus, [1])
-  // await writeCommand(device, commands.GetDongleVersion, [])
-  // await writeCommand(device, commands.BatteryLevel, [])
-
   reading.value = true
+
+  await readDeviceEeprom(device, commands.PCDriverStatus, 0, [1])
+  await readDeviceEeprom(device, commands.GetDongleVersion, 0, [])
+  await readDeviceEeprom(device, commands.BatteryLevel, 0, [])
 
   await readDeviceFullEeprom(device)
   parseReadDeviceEeprom()
-
-  // await readDeviceEeprom(device, mouseEepromAddr.CurrentDPI, 2)
 
   reading.value = false
 }

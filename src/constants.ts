@@ -27,7 +27,7 @@ export const commands = {
   MusicSingleColor: 0xB1,//音乐律动全键单色
   WriteKBCIdMID: 0xF0,//读取cid mid,cx53710专用
   ReadKBCIdMID: 0xF1,//读取cid mid,cx53710专用
-}
+} as const
 
 export const mouseEepromAddr = {
   ReportRate: 0x00,//报告率
@@ -35,7 +35,7 @@ export const mouseEepromAddr = {
   CurrentDPI: 0x04,//当前DPI档位
   LOD: 0x0A,//LOD高度
   DPIValue: 0x0C,//第一档DPI值
-  DPIColor: 0x2C,//第一档DPI颜色
+  DPIColor: 0x20,//第一档DPI颜色
   DPIEffectMode: 0x4C,//DPI灯效
   DPIEffectBrightness: 0x4E,//DPI灯效亮度
   DPIEffectSpeed: 0x50,//DPI灯效亮度
@@ -53,6 +53,8 @@ export const mouseEepromAddr = {
   KeyFunction: 0x60,
   ShortcutKey: 0x0100,
   Macro: 0x0300,
-}
+} as const
 
 export const reportId = 0x08
+
+export type CommandValues<T extends keyof typeof commands> = typeof commands[T]

@@ -6,7 +6,8 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
-    "preview": "vite preview",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
     "tauri": "tauri"
   },
   "dependencies": {

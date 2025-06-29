@@ -2,8 +2,12 @@
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui'],
   devtools: { enabled: false },
+  css: ['~/assets/main.css'],
+  colorMode: {
+    preference: 'dark',
+    fallback: 'dark',
+  },
   ui: {
-    colorMode: false,
     fonts: false,
   },
   future: {

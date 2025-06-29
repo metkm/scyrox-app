@@ -1,48 +1,19 @@
 <script setup lang="ts">
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { onMounted, reactive, ref } from 'vue'
-import { getDevice, readDeviceEeprom, readDeviceFullEeprom } from './device'
-import { commands, mouseEepromAddr, reportId } from './constants'
+import { writeDeviceEeprom, readDeviceFullEeprom } from './device'
+import { commands, defaultConfig, mouseEepromAddr, reportId } from './constants'
 import { bufferToColor, sleep, voltageToBatteryLevel } from './utils'
+import { useDevice } from './hooks/useDevice'
 
 const flashData: number[] = []
 
 const reading = ref(false)
+const read = ref(false)
 
-const deviceData = reactive({
-  version: '',
-  batteryLevel: 0,
-  batteryCharging: false,
-  batteryVoltage: 0,
-  dpiValues: [] as { value: number, color: string }[],
-  currentDpiIndex: 0,
-  maxDpi: 0,
-  reportRate: 1000,
-  dpiEffect: {
-    mode: 0,
-    brightness: 0,
-    speed: 0,
-    state: 0,
-  },
-  lightEffect: {
-    mode: 0,
-    color: 0,
-    speed: 0,
-    brightness: 0,
-    state: 0,
-    time: 0,
-  },
-  debounceTime: 0,
-  sensor: {
-    motionSync: 0,
-    sleepTime: 0,
-    angle: 0,
-    ripple: 0,
-    performance: 0,
-    mode: 0,
-  },
-  movingOffLight: 0,
-})
+const deviceData = reactive(defaultConfig)
+
+const { device, requestDevice } = useDevice()
 
 onMounted(() => {
   const window = getCurrentWindow()
@@ -65,13 +36,14 @@ const handleInputReport = async (event: HIDInputReportEvent) => {
     case commands.GetDongleVersion:
       deviceData.version = `${slice[0]}.${slice[1]?.toString(16).padStart(2, '0')}`
       break
-    case commands.ReadFlashData: {
-      const addr = (data[2] || 0 << 8) + (data[3] || 0)
+    case commands.ReadFlashData:
+      {
+        const addr = (data[2] || 0 << 8) + (data[3] || 0)
 
-      for (let index = 0; index < (data[4] || 0); index++) {
-        flashData[addr + index] = slice[index] || 0
+        for (let index = 0; index < (data[4] || 0); index++) {
+          flashData[addr + index] = slice[index] || 0
+        }
       }
-    }
       break
     default:
       break
@@ -81,7 +53,8 @@ const handleInputReport = async (event: HIDInputReportEvent) => {
 const parseReadDeviceEeprom = () => {
   deviceData.maxDpi = flashData[mouseEepromAddr.MaxDPI] || 0
   deviceData.currentDpiIndex = flashData[mouseEepromAddr.CurrentDPI] || 0
-  deviceData.reportRate = (flashData[0] || 0) > 0x10 ? ((flashData[0] || 0) / 0x10) * 2000 : 1000 / (flashData[0] || 0)
+  deviceData.reportRate
+    = (flashData[0] || 0) > 0x10 ? ((flashData[0] || 0) / 0x10) * 2000 : 1000 / (flashData[0] || 0)
 
   // fill dpi values
   for (let index = 0; index < 8; index++) {
@@ -98,7 +71,9 @@ const parseReadDeviceEeprom = () => {
 
     deviceData.dpiValues[index] = {
       value,
-      color: bufferToColor(flashData.slice(dpiAddr + mouseEepromAddr.DPIColor, dpiAddr + mouseEepromAddr.DPIColor + 3)),
+      color: bufferToColor(
+        flashData.slice(dpiAddr + mouseEepromAddr.DPIColor, dpiAddr + mouseEepromAddr.DPIColor + 3),
+      ),
     }
   }
   // fill dpi values end
@@ -122,49 +97,55 @@ const parseReadDeviceEeprom = () => {
   deviceData.sensor.ripple = flashData[mouseEepromAddr.Ripple] || 0
   deviceData.sensor.performance = flashData[mouseEepromAddr.Ripple] || 0
   deviceData.sensor.mode = flashData[mouseEepromAddr.SensorMode] || 0
+  deviceData.sensor.lod = flashData[mouseEepromAddr.LOD] || 0
 
   deviceData.movingOffLight = flashData[mouseEepromAddr.MovingOffLight] || 0
 }
 
-const requestDevice = async () => {
-  const device = await getDevice()
-  if (!device) return
+const getDevice = async () => {
+  await requestDevice()
+  if (!device.value) return
 
-  if (!device.opened) {
-    await device.open()
-  }
-
-  device.oninputreport = handleInputReport
+  device.value.oninputreport = handleInputReport
   reading.value = true
 
-  await readDeviceEeprom(device, commands.PCDriverStatus, 0, [1])
-  await readDeviceEeprom(device, commands.GetDongleVersion, 0, [])
-  await readDeviceEeprom(device, commands.BatteryLevel, 0, [])
+  await writeDeviceEeprom(device.value, commands.PCDriverStatus, 0, [1])
+  await writeDeviceEeprom(device.value, commands.GetDongleVersion, 0, [])
+  await writeDeviceEeprom(device.value, commands.BatteryLevel, 0, [])
 
   await sleep(50)
-  await readDeviceFullEeprom(device)
+  await readDeviceFullEeprom(device.value)
   parseReadDeviceEeprom()
 
   reading.value = false
+  read.value = true
 }
 </script>
 
 <template>
-  <main class="p-4">
-    <UButton
-      :loading="reading"
-      @click="requestDevice"
-    >
-      Request Device
-    </UButton>
+  <UApp>
+    <main class="flex flex-col gap-4 p-4">
+      <UButton
+        :loading="reading"
+        @click="getDevice"
+      >
+        Request device
+      </UButton>
 
-    <pre>
+      <template v-if="read">
+        <VDpi
+          :current-dpi-index="deviceData.currentDpiIndex"
+          :dpi-values="deviceData.dpiValues"
+          :max-dpi-index="deviceData.maxDpi"
+          :tooltip="{
+            open: true,
+          }"
+        />
+
+        <pre>
       {{ JSON.stringify(deviceData, undefined, 2) }}
     </pre>
-  </main>
+      </template>
+    </main>
+  </UApp>
 </template>
-
-<style>
-@import "tailwindcss";
-@import "@nuxt/ui";
-</style>

@@ -1,34 +1,6 @@
 import type { CommandValues } from './constants'
-import { commands, reportId } from './constants'
+import { commands, mouseEepromAddr, reportId } from './constants'
 import { getCrc, sleep } from './utils'
-
-const filters = [
-  {
-    vendorId: 13652,
-    productId: 62967,
-  },
-  {
-    vendorId: 13652,
-    productId: 62964,
-  },
-  {
-    vendorId: 13652,
-    productId: 62966,
-  },
-]
-
-export const getDevice = async () => {
-  const devices = await navigator.hid.requestDevice({ filters })
-
-  for (const device of devices) {
-    for (const collection of device.collections) {
-      if (collection.inputReports?.length !== 1 || collection.outputReports?.length !== 1) continue
-      if (collection.outputReports[0].reportId != reportId) continue
-
-      return device
-    }
-  }
-}
 
 export const readDeviceFullEeprom = async (device: HIDDevice) => {
   const data = Uint8Array.of(
@@ -66,7 +38,7 @@ export const readDeviceFullEeprom = async (device: HIDDevice) => {
   } while (add < 0x100)
 }
 
-export const readDeviceEeprom = async <T extends keyof typeof commands>(
+export const writeDeviceEeprom = async <T extends keyof typeof commands>(
   device: HIDDevice,
   command: CommandValues<T>,
   address: number,
@@ -93,9 +65,13 @@ export const readDeviceEeprom = async <T extends keyof typeof commands>(
   )
 
   for (let index = 0; index < value.length; index++) {
-    data[5 + index] = value[index]
+    data[5 + index] = value[index] || 0
   }
 
   data[15] = getCrc(data) - reportId
   await device.sendReport(reportId, data)
+}
+
+export const setDpiIndex = (device: HIDDevice, index: number) => {
+  return writeDeviceEeprom(device, commands.WriteFlashData, mouseEepromAddr.CurrentDPI, [index, 0x55 - index], 2)
 }

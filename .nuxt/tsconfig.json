@@ -76,6 +76,9 @@
       "assets": [
         "../app/assets"
       ],
+      "assets/*": [
+        "../app/assets/*"
+      ],
       "public": [
         "../public"
       ],
@@ -96,6 +99,9 @@
       ],
       "#ui/*": [
         "../node_modules/@nuxt/ui/dist/runtime/*"
+      ],
+      "#color-mode-options": [
+        "./color-mode-options.mjs"
       ],
       "#vue-router": [
         "../node_modules/vue-router"
@@ -156,6 +162,8 @@
     "../node_modules/@nuxt/eslint/dist/runtime",
     "../node_modules/@nuxt/icon/runtime",
     "../node_modules/@nuxt/icon/dist/runtime",
+    "../node_modules/@nuxtjs/color-mode/runtime",
+    "../node_modules/@nuxtjs/color-mode/dist/runtime",
     "../node_modules/@nuxt/ui/runtime",
     "../node_modules/@nuxt/ui/dist/runtime",
     "../node_modules/@nuxt/telemetry/runtime",
@@ -169,12 +177,15 @@
     "../node_modules/nuxt/node_modules",
     "../node_modules/@nuxt/eslint/node_modules",
     "../node_modules/@nuxt/icon/node_modules",
+    "../node_modules/@nuxtjs/color-mode/node_modules",
     "../node_modules/@nuxt/ui/node_modules",
     "../node_modules/@nuxt/telemetry/node_modules",
     "../node_modules/@nuxt/eslint/runtime/server",
     "../node_modules/@nuxt/eslint/dist/runtime/server",
     "../node_modules/@nuxt/icon/runtime/server",
     "../node_modules/@nuxt/icon/dist/runtime/server",
+    "../node_modules/@nuxtjs/color-mode/runtime/server",
+    "../node_modules/@nuxtjs/color-mode/dist/runtime/server",
     "../node_modules/@nuxt/ui/runtime/server",
     "../node_modules/@nuxt/ui/dist/runtime/server",
     "../node_modules/@nuxt/telemetry/runtime/server",

@@ -38,3 +38,4 @@ export { localeContextInjectionKey, useLocale } from '../node_modules/@nuxt/ui/d
 export { useOverlay } from '../node_modules/@nuxt/ui/dist/runtime/composables/useOverlay';
 export { portalTargetInjectionKey, usePortal } from '../node_modules/@nuxt/ui/dist/runtime/composables/usePortal';
 export { useToast } from '../node_modules/@nuxt/ui/dist/runtime/composables/useToast';
+export { useColorMode } from '../node_modules/@nuxtjs/color-mode/dist/runtime/composables';

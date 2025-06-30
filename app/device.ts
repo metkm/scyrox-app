@@ -87,7 +87,5 @@ export const setDpiValue = (device: HIDDevice, index: number, value: number) => 
   data[2] = (high << 2) | (high << 6)
   data[3] = getCrc(data)
 
-  console.log(data)
-
   return writeDeviceEeprom(device, commands.WriteFlashData, mouseEepromAddr.DPIValue + index * 4, data)
 }

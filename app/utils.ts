@@ -1,4 +1,4 @@
-export const getCrc = (buffer: Uint8Array<ArrayBuffer>) => {
+export const getCrc = (buffer: Uint8Array<ArrayBuffer> | number[]) => {
   let crc = 0
 
   for (let i = 0; i < buffer.length - 1; i++) {

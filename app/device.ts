@@ -75,3 +75,19 @@ export const writeDeviceEeprom = async <T extends keyof typeof commands>(
 export const setDpiIndex = (device: HIDDevice, index: number) => {
   return writeDeviceEeprom(device, commands.WriteFlashData, mouseEepromAddr.CurrentDPI, [index, 0x55 - index], 2)
 }
+
+export const setDpiValue = (device: HIDDevice, index: number, value: number) => {
+  const data = [0x00, 0x00, 0x00, 0x00]
+
+  const low = (value / 50 - 1) & 0xFF
+  data[0] = low
+  data[1] = low
+
+  const high = ((value / 50 - 1) >> 8) & 0xFF
+  data[2] = (high << 2) | (high << 6)
+  data[3] = getCrc(data)
+
+  console.log(data)
+
+  return writeDeviceEeprom(device, commands.WriteFlashData, mouseEepromAddr.DPIValue + index * 4, data)
+}

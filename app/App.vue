@@ -125,7 +125,7 @@ const getDevice = async () => {
 <template>
   <UApp>
     <main class="flex flex-col p-4 space-y-4 min-h-screen">
-      <div>
+      <div v-if="!read">
         <UButton
           :loading="reading"
           @click="getDevice"
@@ -135,10 +135,25 @@ const getDevice = async () => {
       </div>
 
       <div
-        v-if="read"
-        class="grow flex gap-4 justify-around"
+        v-else
+        class="grow flex items-center gap-4 justify-around"
       >
-        <VKeys />
+        <div class="flex flex-col gap-4">
+          <VKeys />
+
+          <VContainer title="Battery">
+            <p class="font-medium text-primary">
+              {{ deviceData.batteryLevel.toFixed(2) }}%
+            </p>
+
+            <div class="-mb-4 -mx-4">
+              <div
+                class="h-0.5 bg-primary "
+                :style="{ width: `${deviceData.batteryLevel}%` }"
+              />
+            </div>
+          </VContainer>
+        </div>
 
         <VDpi
           :current-dpi-index="deviceData.currentDpiIndex"

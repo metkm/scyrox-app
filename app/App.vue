@@ -124,15 +124,22 @@ const getDevice = async () => {
 
 <template>
   <UApp>
-    <main class="p-4 space-y-4">
-      <UButton
-        :loading="reading"
-        @click="getDevice"
-      >
-        Request device
-      </UButton>
+    <main class="flex flex-col p-4 space-y-4 min-h-screen">
+      <div>
+        <UButton
+          :loading="reading"
+          @click="getDevice"
+        >
+          Request device
+        </UButton>
+      </div>
 
-      <template v-if="read">
+      <div
+        v-if="read"
+        class="grow flex gap-4 justify-around"
+      >
+        <VKeys />
+
         <VDpi
           :current-dpi-index="deviceData.currentDpiIndex"
           :dpi-values="deviceData.dpiValues"
@@ -141,11 +148,7 @@ const getDevice = async () => {
             open: true,
           }"
         />
-
-        <pre>
-      {{ JSON.stringify(deviceData, undefined, 2) }}
-    </pre>
-      </template>
+      </div>
     </main>
   </UApp>
 </template>

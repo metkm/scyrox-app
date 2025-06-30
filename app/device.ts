@@ -89,3 +89,12 @@ export const setDpiValue = (device: HIDDevice, index: number, value: number) => 
 
   return writeDeviceEeprom(device, commands.WriteFlashData, mouseEepromAddr.DPIValue + index * 4, data)
 }
+
+export const setKeyFunction = async (device: HIDDevice, index: number, value: number[]) => {
+  const addr = mouseEepromAddr.KeyFunction + index * 4
+
+  const data = [value[0] || 0x00, value[1] || 0x00, value[2] || 0x00, 0x00]
+  data[3] = getCrc(data)
+
+  return writeDeviceEeprom(device, commands.WriteFlashData, addr, data)
+}

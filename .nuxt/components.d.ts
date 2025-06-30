@@ -14,6 +14,7 @@ type LazyComponent<T> = (T & DefineComponent<HydrationStrategies, {}, {}, {}, {}
 interface _GlobalComponents {
       'VContainer': typeof import("../app/components/VContainer.vue")['default']
     'VDpi': typeof import("../app/components/VDpi.vue")['default']
+    'VKey': typeof import("../app/components/VKey.vue")['default']
     'VKeys': typeof import("../app/components/VKeys.vue")['default']
     'UAccordion': typeof import("../node_modules/@nuxt/ui/dist/runtime/components/Accordion.vue")['default']
     'UAlert': typeof import("../node_modules/@nuxt/ui/dist/runtime/components/Alert.vue")['default']
@@ -101,6 +102,7 @@ interface _GlobalComponents {
     'NuxtRouteAnnouncer': IslandComponent<typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']>
       'LazyVContainer': LazyComponent<typeof import("../app/components/VContainer.vue")['default']>
     'LazyVDpi': LazyComponent<typeof import("../app/components/VDpi.vue")['default']>
+    'LazyVKey': LazyComponent<typeof import("../app/components/VKey.vue")['default']>
     'LazyVKeys': LazyComponent<typeof import("../app/components/VKeys.vue")['default']>
     'LazyUAccordion': LazyComponent<typeof import("../node_modules/@nuxt/ui/dist/runtime/components/Accordion.vue")['default']>
     'LazyUAlert': LazyComponent<typeof import("../node_modules/@nuxt/ui/dist/runtime/components/Alert.vue")['default']>
@@ -194,6 +196,7 @@ declare module 'vue' {
 
 export const VContainer: typeof import("../app/components/VContainer.vue")['default']
 export const VDpi: typeof import("../app/components/VDpi.vue")['default']
+export const VKey: typeof import("../app/components/VKey.vue")['default']
 export const VKeys: typeof import("../app/components/VKeys.vue")['default']
 export const UAccordion: typeof import("../node_modules/@nuxt/ui/dist/runtime/components/Accordion.vue")['default']
 export const UAlert: typeof import("../node_modules/@nuxt/ui/dist/runtime/components/Alert.vue")['default']
@@ -281,6 +284,7 @@ export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components
 export const NuxtRouteAnnouncer: IslandComponent<typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']>
 export const LazyVContainer: LazyComponent<typeof import("../app/components/VContainer.vue")['default']>
 export const LazyVDpi: LazyComponent<typeof import("../app/components/VDpi.vue")['default']>
+export const LazyVKey: LazyComponent<typeof import("../app/components/VKey.vue")['default']>
 export const LazyVKeys: LazyComponent<typeof import("../app/components/VKeys.vue")['default']>
 export const LazyUAccordion: LazyComponent<typeof import("../node_modules/@nuxt/ui/dist/runtime/components/Accordion.vue")['default']>
 export const LazyUAlert: LazyComponent<typeof import("../node_modules/@nuxt/ui/dist/runtime/components/Alert.vue")['default']>

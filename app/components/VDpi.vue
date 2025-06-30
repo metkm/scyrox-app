@@ -31,7 +31,9 @@ const handleChange = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-4 bg-elevated p-4 rounded-(--ui-radius)">
+    <h1>Dpi Value</h1>
+
     <USlider
       v-model="dpiValue.value"
       :default-value="values[currentDpiIndex]?.value"

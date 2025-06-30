@@ -124,7 +124,7 @@ const getDevice = async () => {
 
 <template>
   <UApp>
-    <main class="flex flex-col gap-4 p-4">
+    <main class="p-4 space-y-4">
       <UButton
         :loading="reading"
         @click="getDevice"

@@ -23,7 +23,6 @@ pub fn get_device() -> Option<HidDevice> {
         });
 
     for device_info in devices {
-        // let opened_device = device.open_device(&api);
         let Ok(device) = device_info.open_device(&api) else {
             continue;
         };

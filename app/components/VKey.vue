@@ -13,16 +13,35 @@ const selectedLabel = ref()
 
 const handleKeyUpdate = async (label: string, value: number[]) => {
   selectedLabel.value = label
-  await setKeyFunction(device.value, props.keyIndex, value)
+
+  // multimedia key
+  if (value[0] === 5) {
+    console.log('multimedia key')
+  }
+  else {
+    await setKeyFunction(device.value, props.keyIndex, value)
+  }
 }
 
 const buttonLabels = ['Left button', 'Right button', 'Middle button', 'Back button', 'Forward button']
+const multimediaLabels = ['Next', 'Previous', 'Play / pause', 'Stop', 'Volume+', 'Volume-']
 
 const buttonItems = computed(() => {
   return buttonLabels.map((label, index) => {
     return {
       label,
       onSelect: () => handleKeyUpdate(label, [1, 1 << index, 0]),
+      checked: selectedLabel.value === label,
+      type: 'checkbox',
+    }
+  }) as DropdownMenuItem[]
+})
+
+const multimediaItems = computed(() => {
+  return multimediaLabels.map((label) => {
+    return {
+      label,
+      onSelect: () => handleKeyUpdate(label, [5, 0, 0]),
       checked: selectedLabel.value === label,
       type: 'checkbox',
     }
@@ -37,29 +56,13 @@ const items = computed(() => {
     },
     {
       label: 'Media key',
-      children: [
-        {
-          label: 'Next',
-        },
-        {
-          label: 'Previous',
-        },
-        {
-          label: 'Play / pause',
-        },
-        {
-          label: 'Stop',
-        },
-        {
-          label: 'Mute',
-        },
-        {
-          label: 'Volume+',
-        },
-        {
-          label: 'Volume-',
-        },
-      ],
+      children: multimediaItems.value,
+    },
+    {
+      label: 'Disabled',
+      onSelect: () => handleKeyUpdate('Disabled', [0, 0, 0]),
+      checked: selectedLabel.value === 'Disabled',
+      type: 'checkbox',
     },
   ] satisfies DropdownMenuItem[]
 })

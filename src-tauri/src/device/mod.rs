@@ -44,7 +44,6 @@ pub fn get_device() -> Option<HidDevice> {
             .get(0)
             .and_then(|report| report.report_id)
             .is_some_and(|report_id| u32::from(report_id) == 8) {
-                // println!("found device i guess")
                 return Some(device);
             }
     };

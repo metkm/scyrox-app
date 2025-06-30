@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { onMounted, reactive, ref } from 'vue'
+import { invoke } from '@tauri-apps/api/core'
 import { writeDeviceEeprom, readDeviceFullEeprom } from './device'
 import { commands, defaultConfig, mouseEepromAddr, reportId } from './constants'
 import { bufferToColor, sleep, voltageToBatteryLevel } from './utils'
@@ -70,6 +71,7 @@ const parseReadDeviceEeprom = () => {
     value = (value + 1) * 50
 
     deviceData.dpiValues[index] = {
+
       value,
       color: bufferToColor(
         flashData.slice(dpiAddr + mouseEepromAddr.DPIColor, dpiAddr + mouseEepromAddr.DPIColor + 3),
@@ -103,22 +105,24 @@ const parseReadDeviceEeprom = () => {
 }
 
 const getDevice = async () => {
-  await requestDevice()
-  if (!device.value) return
+  invoke('set_current_dpi_index', { index: 3 })
 
-  device.value.oninputreport = handleInputReport
-  reading.value = true
+  // await requestDevice()
+  // if (!device.value) return
 
-  await writeDeviceEeprom(device.value, commands.PCDriverStatus, 0, [1])
-  await writeDeviceEeprom(device.value, commands.GetDongleVersion, 0, [])
-  await writeDeviceEeprom(device.value, commands.BatteryLevel, 0, [])
+  // device.value.oninputreport = handleInputReport
+  // reading.value = true
 
-  await sleep(50)
-  await readDeviceFullEeprom(device.value)
-  parseReadDeviceEeprom()
+  // await writeDeviceEeprom(device.value, commands.PCDriverStatus, 0, [1])
+  // await writeDeviceEeprom(device.value, commands.GetDongleVersion, 0, [])
+  // await writeDeviceEeprom(device.value, commands.BatteryLevel, 0, [])
 
-  reading.value = false
-  read.value = true
+  // await sleep(50)
+  // await readDeviceFullEeprom(device.value)
+  // parseReadDeviceEeprom()
+
+  // reading.value = false
+  // read.value = true
 }
 </script>
 

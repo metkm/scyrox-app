@@ -1,3 +1,7 @@
+pub mod constants;
+pub mod hid;
+pub mod utils;
+
 use hidapi::HidDevice;
 
 struct Filter {

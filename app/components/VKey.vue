@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import { setKeyFunction } from '~/device'
+import { multimediaKeys } from '~/constants'
+import { setKeyFunction, setMultimedia } from '~/device'
 import { useDevice } from '~/hooks/useDevice'
 
 const props = defineProps<{
@@ -14,17 +15,11 @@ const selectedLabel = ref()
 const handleKeyUpdate = async (label: string, value: number[]) => {
   selectedLabel.value = label
 
-  // multimedia key
-  if (value[0] === 5) {
-    console.log('multimedia key')
-  }
-  else {
-    await setKeyFunction(device.value, props.keyIndex, value)
-  }
+  await setKeyFunction(device.value, props.keyIndex, value)
 }
 
 const buttonLabels = ['Left button', 'Right button', 'Middle button', 'Back button', 'Forward button']
-const multimediaLabels = ['Next', 'Previous', 'Play / pause', 'Stop', 'Volume+', 'Volume-']
+const multimediaLabels = ['Play / Pause', 'Next', 'Previous', 'Stop', 'Volume+', 'Volume-']
 
 const buttonItems = computed(() => {
   return buttonLabels.map((label, index) => {
@@ -38,10 +33,18 @@ const buttonItems = computed(() => {
 })
 
 const multimediaItems = computed(() => {
-  return multimediaLabels.map((label) => {
+  return multimediaLabels.map((label, index) => {
     return {
       label,
-      onSelect: () => handleKeyUpdate(label, [5, 0, 0]),
+      onSelect: async () => {
+        const multiKey = multimediaKeys[index]
+
+        if (multiKey) {
+          await setMultimedia(device.value, props.keyIndex, multiKey)
+        }
+
+        handleKeyUpdate(label, [5, 0, 0])
+      },
       checked: selectedLabel.value === label,
       type: 'checkbox',
     }

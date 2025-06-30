@@ -103,4 +103,13 @@ export const defaultConfig = {
 
 export const reportId = 0x08
 
-export type CommandValues<T extends keyof typeof commands> = typeof commands[T]
+export const multimediaKeys: {
+  [key: number]: number
+} = {
+  0: 0xCD, // Play Pause
+  1: 0xB5, // Next track
+  2: 0xB6, // Prev track
+  3: 0xB7, // Stop track
+  4: 0xE9, // Volume +
+  5: 0xEA, // Volume -
+}

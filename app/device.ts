@@ -1,4 +1,4 @@
-import type { CommandValues } from './constants'
+import type { CommandValues } from './types'
 import { commands, mouseEepromAddr, reportId } from './constants'
 import { getCrc, sleep } from './utils'
 
@@ -96,5 +96,23 @@ export const setKeyFunction = async (device: HIDDevice, index: number, value: nu
   const data = [value[0] || 0x00, value[1] || 0x00, value[2] || 0x00, 0x00]
   data[3] = getCrc(data)
 
+  return writeDeviceEeprom(device, commands.WriteFlashData, addr, data)
+}
+
+export const setMultimedia = async (device: HIDDevice, index: number, multimedia: number) => {
+  const addr = mouseEepromAddr.ShortcutKey + index * 0x20
+
+  const data = [
+    0x02,
+    0x82,
+    multimedia & 0xFF,
+    multimedia >> 8,
+    0x42,
+    multimedia & 0xFF,
+    multimedia >> 8,
+    0x00,
+  ]
+
+  data[7] = getCrc(data)
   return writeDeviceEeprom(device, commands.WriteFlashData, addr, data)
 }

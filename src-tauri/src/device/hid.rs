@@ -40,7 +40,8 @@ pub fn write_eeprom(
     // let low: u8 = address.into() >> 8;
     // let high: u8 = address.into() & 0xFF;
 
-    let mut buffer: [u8; 16] = [
+    let mut buffer: [u8; 17] = [
+        0x08,
         command.into(),
         0x00,
         *address_bytes.get(0).unwrap_or(&0),
@@ -62,7 +63,7 @@ pub fn write_eeprom(
     ];
 
     for i in 0..value.len() {
-        let Some(val) = buffer.get_mut(i + 5) else {
+        let Some(val) = buffer.get_mut(i + 6) else {
             continue;
         };
 
@@ -71,9 +72,10 @@ pub fn write_eeprom(
 
     let crc = get_usb_crc(&buffer).wrapping_sub(REPORT_ID);
 
-    if let Some(val) = buffer.get_mut(15) {
+    if let Some(val) = buffer.get_mut(16) {
         *val = crc;
     };
 
+    println!("{:?}", buffer);
     device.write(&buffer)
 }

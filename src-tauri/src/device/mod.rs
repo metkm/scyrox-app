@@ -4,6 +4,8 @@ pub mod utils;
 
 use hidapi::HidDevice;
 
+use crate::device::constants::REPORT_ID;
+
 struct Filter {
     pub vendor_id: u16,
     pub product_id: u16
@@ -47,7 +49,7 @@ pub fn get_device() -> Option<HidDevice> {
         if report_descriptor.output_reports
             .get(0)
             .and_then(|report| report.report_id)
-            .is_some_and(|report_id| u32::from(report_id) == 8) {
+            .is_some_and(|report_id| u32::from(report_id) == REPORT_ID as u32) {
                 return Some(device);
             }
     };

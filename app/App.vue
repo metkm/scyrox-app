@@ -105,7 +105,7 @@ const parseReadDeviceEeprom = () => {
 }
 
 const getDevice = async () => {
-  invoke('set_current_dpi_index', { index: 3 })
+  invoke('set_current_dpi_index', { index: 1 })
 
   // await requestDevice()
   // if (!device.value) return

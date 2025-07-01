@@ -24,11 +24,15 @@ pub fn voltage_to_level(voltage: i16) -> u8 {
             return 0;
         };
 
+    if voltage_index == 0 {
+        return 0;
+    }
+
     let Some(rounded_voltage) = VOLTAGES.get(voltage_index) else {
         return 0;
     };
 
-    let Some(rounded_voltage_down) = VOLTAGES.get(voltage_index - 1) else {
+    let Some(rounded_voltage_down) = VOLTAGES.get(voltage_index.saturating_sub(1)) else {
         return 0;
     };
 

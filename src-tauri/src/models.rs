@@ -23,6 +23,12 @@ pub struct MouseConfig {
     // max_dpi_index: u8,
 }
 
+#[derive(serde::Serialize)]
+pub struct Battery {
+    pub charging: bool,
+    pub level: u8,
+}
+
 impl MouseConfig {
     pub fn from_slice(buffer: &[u8]) -> Self {
         MouseConfig {

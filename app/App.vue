@@ -21,10 +21,10 @@ onMounted(async () => {
   window.show()
 
   try {
-    const mouseConfig = await invoke('read_mouse_config')
-    console.log(mouseConfig)
+    // const mouseConfig = await invoke('read_mouse_config')
+    // console.log(mouseConfig)
 
-    const battery = await invoke('get_mouse_battery')
+    const battery = await invoke<{ charging: boolean, level: number }>('get_mouse_battery')
     console.log(battery)
   }
   catch (err) {

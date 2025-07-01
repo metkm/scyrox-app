@@ -45,7 +45,7 @@ pub fn write_eeprom(
         *buff_val = *val;
     }
 
-    let crc = get_usb_crc(&buffer).wrapping_sub(REPORT_ID);
+    let crc = get_usb_crc(&buffer).saturating_sub(REPORT_ID);
 
     if let Some(val) = buffer.get_mut(16) {
         *val = crc;

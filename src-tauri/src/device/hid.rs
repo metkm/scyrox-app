@@ -1,15 +1,20 @@
-use hidapi::{HidDevice, HidResult};
+use hidapi::HidDevice;
 
-use crate::device::{constants::{Command, MouseEepromAddr, REPORT_ID}, utils::get_usb_crc};
-
+use crate::{
+    device::{
+        constants::{Command, REPORT_ID},
+        utils::get_usb_crc,
+    },
+    models::AppError,
+};
 
 pub fn write_eeprom(
     device: &HidDevice,
     command: Command,
     address: u16,
     value: &[u8],
-    length: u8
-) -> HidResult<usize> {
+    length: u8,
+) -> Result<usize, AppError> {
     let address_bytes = address.to_be_bytes();
 
     let mut buffer: [u8; 17] = [
@@ -29,7 +34,7 @@ pub fn write_eeprom(
         0x00,
         0x00,
         0x00,
-        0xEF
+        0xEF,
     ];
 
     for (i, val) in value.iter().enumerate() {
@@ -46,5 +51,7 @@ pub fn write_eeprom(
         *val = crc;
     };
 
-    device.write(&buffer)
+    let written_count= device.write(&buffer)?;
+
+    Ok(written_count)
 }

@@ -11,7 +11,7 @@ mod models;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![commands::set_current_dpi_index, commands::read_full_eeprom])
+        .invoke_handler(tauri::generate_handler![commands::set_current_dpi_index, commands::read_mouse_config, commands::get_mouse_battery])
         .setup(|app| {
             let device = device::get_device();
 

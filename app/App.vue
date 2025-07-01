@@ -16,12 +16,16 @@ const deviceData = reactive(defaultConfig)
 
 const { device, requestDevice } = useDevice()
 
-onMounted(() => {
+onMounted(async () => {
   const window = getCurrentWindow()
   window.show()
 
   try {
-    invoke('read_full_eeprom')
+    const mouseConfig = await invoke('read_mouse_config')
+    console.log(mouseConfig)
+
+    const battery = await invoke('get_mouse_battery')
+    console.log(battery)
   }
   catch (err) {
     console.log(err)
@@ -38,7 +42,7 @@ const handleInputReport = async (event: HIDInputReportEvent) => {
     case commands.BatteryLevel:
       deviceData.batteryCharging = slice[1] === 1
       deviceData.batteryVoltage = ((slice[2] || 0) << 8) + (slice[3] || 0)
-      // deviceData.batteryLevel = slice[0]
+      // deviceData.batteryLevel = slice[0
       deviceData.batteryLevel = voltageToBatteryLevel(deviceData.batteryVoltage)
       break
     case commands.GetDongleVersion:
@@ -130,8 +134,8 @@ const getDevice = async () => {
   await readDeviceFullEeprom(device.value)
   parseReadDeviceEeprom()
 
-  // // reading.value = false
-  // read.value = true
+  // reading.value = false
+  read.value = true
 }
 </script>
 

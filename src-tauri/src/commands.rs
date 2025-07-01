@@ -2,16 +2,18 @@ use std::sync::Mutex;
 
 use tauri::State;
 
+use crate::device;
 use crate::device::hid::write_eeprom;
 use crate::device::constants::{Command, MouseEepromAddr};
-use crate::models;
+use crate::device::utils::voltage_to_level;
+use crate::models::{self, AppError, MouseConfig};
 
 #[tauri::command]
-pub fn set_current_dpi_index(state: State<'_, Mutex<models::AppState>>, index: u8) -> Result<usize, String> {
+pub fn set_current_dpi_index(state: State<'_, Mutex<models::AppState>>, index: u8) -> Result<usize, AppError> {
     let state = state.lock().unwrap();
 
     let Some(device) = &state.device else {
-        return Err("device is not connected".to_string());
+        return Err(AppError::DeviceNotFound)
     };
 
     write_eeprom(
@@ -21,11 +23,10 @@ pub fn set_current_dpi_index(state: State<'_, Mutex<models::AppState>>, index: u
         &[index, 0x55 - index],
         2
     )
-        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn read_full_eeprom(state: State<'_, Mutex<models::AppState>>) -> Result<(), String> {
+pub fn read_mouse_config(state: State<'_, Mutex<models::AppState>>) -> Result<MouseConfig, String> {
     let state = state.lock().unwrap();
 
     let Some(device) = &state.device else {
@@ -43,7 +44,7 @@ pub fn read_full_eeprom(state: State<'_, Mutex<models::AppState>>) -> Result<(),
         }
 
         match device.read_timeout(&mut chunk_buffer, 50) {
-            Ok(read_size) => {
+            Ok(_) => {
                 let buff_without_report_id = &chunk_buffer[1..];
 
                 for i in 0..10 {
@@ -57,8 +58,6 @@ pub fn read_full_eeprom(state: State<'_, Mutex<models::AppState>>) -> Result<(),
 
                     *target = *source;
                 }
-
-                println!("read size {:?} - {:?}", read_size, &buff_without_report_id)
             },
             Err(err) => {
                 return Err(err.to_string())
@@ -68,7 +67,26 @@ pub fn read_full_eeprom(state: State<'_, Mutex<models::AppState>>) -> Result<(),
         addr += 10;
     }
 
-    println!("{:?}", full_buffer);
+    Ok(MouseConfig::from_slice(&full_buffer))
+}
 
-    Ok(())
+
+
+#[tauri::command]
+pub fn get_mouse_battery(state: State<'_, Mutex<models::AppState>>) -> Result<u8, AppError> {
+    let state = state.lock().unwrap();
+
+    let Some(device) = &state.device else {
+        return Err(AppError::DeviceNotFound)
+    };
+
+    let mut buffer = [0_u8; 10];
+    device::read::read(device, Command::BatteryLevel, 0x00, &[], &mut buffer)?;
+
+    let voltage = i16::from_be_bytes([
+        *buffer.get(8).unwrap_or(&0),
+        *buffer.get(9).unwrap_or(&0)
+    ]);
+
+    Ok(voltage_to_level(voltage))
 }

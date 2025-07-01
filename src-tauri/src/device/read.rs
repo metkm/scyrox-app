@@ -1,29 +1,19 @@
 use hidapi::HidDevice;
 
-use crate::device::{constants::Command, hid::write_eeprom};
+use crate::{
+    device::{constants::Command, hid::write_eeprom},
+    models::AppError,
+};
 
-pub fn read_full_eeprom(device: &HidDevice) -> Result<(), String> {
-    let full_buffer: [u8; 255] = [0x00; 255];
-    let mut chunk_buffer: [u8; 16] = [0x00; 16];
+pub fn read(
+    device: &HidDevice,
+    command: Command,
+    addr: u16,
+    value: &[u8],
+    buffer: &mut [u8],
+) -> Result<usize, AppError> {
+    write_eeprom(device, command, addr, value, value.len() as u8)?;
+    let read_count = device.read_timeout(buffer, 50)?;
 
-    let mut addr = 0;
-
-    while addr < 0x100 {
-        if let Err(err) = write_eeprom(device, Command::ReadFlashData, addr, &[], 0x10) {
-            return Err(err.to_string())
-        }
-
-        match device.read_timeout(&mut chunk_buffer, 50) {
-            Ok(read_size) => {
-                println!("read size {:?}", read_size)
-            },
-            Err(err) => {
-                return Err(err.to_string())
-            }
-        }
-        
-        addr += 10;
-    }
-
-    Ok(())
+    Ok(read_count)
 }

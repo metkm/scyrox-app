@@ -1,6 +1,7 @@
 pub mod constants;
 pub mod hid;
 pub mod utils;
+pub mod read;
 
 use hidapi::HidDevice;
 

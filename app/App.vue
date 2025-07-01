@@ -19,6 +19,13 @@ const { device, requestDevice } = useDevice()
 onMounted(() => {
   const window = getCurrentWindow()
   window.show()
+
+  try {
+    invoke('read_full_eeprom')
+  }
+  catch (err) {
+    console.log(err)
+  }
 })
 
 const handleInputReport = async (event: HIDInputReportEvent) => {
@@ -52,6 +59,8 @@ const handleInputReport = async (event: HIDInputReportEvent) => {
 }
 
 const parseReadDeviceEeprom = () => {
+  console.log(flashData)
+
   deviceData.maxDpi = flashData[mouseEepromAddr.MaxDPI] || 0
   deviceData.currentDpiIndex = flashData[mouseEepromAddr.CurrentDPI] || 0
   deviceData.reportRate
@@ -105,23 +114,23 @@ const parseReadDeviceEeprom = () => {
 }
 
 const getDevice = async () => {
-  invoke('set_current_dpi_index', { index: 1 })
+  // invoke('set_current_dpi_index', { index: 1 })
 
-  // await requestDevice()
-  // if (!device.value) return
+  await requestDevice()
+  if (!device.value) return
 
-  // device.value.oninputreport = handleInputReport
-  // reading.value = true
+  device.value.oninputreport = handleInputReport
+  // // reading.value = true
 
-  // await writeDeviceEeprom(device.value, commands.PCDriverStatus, 0, [1])
-  // await writeDeviceEeprom(device.value, commands.GetDongleVersion, 0, [])
-  // await writeDeviceEeprom(device.value, commands.BatteryLevel, 0, [])
+  // // await writeDeviceEeprom(device.value, commands.PCDriverStatus, 0, [1])
+  // // await writeDeviceEeprom(device.value, commands.GetDongleVersion, 0, [])
+  // // await writeDeviceEeprom(device.value, commands.BatteryLevel, 0, [])
 
-  // await sleep(50)
-  // await readDeviceFullEeprom(device.value)
-  // parseReadDeviceEeprom()
+  // // await sleep(50)
+  await readDeviceFullEeprom(device.value)
+  parseReadDeviceEeprom()
 
-  // reading.value = false
+  // // reading.value = false
   // read.value = true
 }
 </script>

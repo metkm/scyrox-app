@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { invoke } from '@tauri-apps/api/core'
 import type { DpiValue } from '~/constants'
 import { setDpiIndex, setDpiValue } from '~/device'
 import { useDevice } from '~/hooks/useDevice'
@@ -22,7 +23,8 @@ const updateDpiIndex = async (dpi: DpiValue, index: number) => {
   dpiValue.value = dpi
   dpiIndex.value = index
 
-  await setDpiIndex(device.value, index)
+  await invoke('set_current_dpi_index', { index })
+  // await setDpiIndex(device.value, index)
 }
 
 const handleChange = async () => {

@@ -76,4 +76,10 @@ impl From<MouseEepromAddr> for u16 {
     }
 }
 
+impl From<MouseEepromAddr> for u8 {
+    fn from(value: MouseEepromAddr) -> Self {
+        value as u8
+    }
+}
+
 pub const REPORT_ID: u8 = 0x08;

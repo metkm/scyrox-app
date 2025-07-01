@@ -27,8 +27,8 @@ pub fn run() {
             {
                 use tauri::Manager;
 
-                let _window = app.get_webview_window("main").unwrap();
-                // window.open_devtools();
+                let window = app.get_webview_window("main").unwrap();
+                window.open_devtools();
             }
 
             Ok(())

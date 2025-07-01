@@ -33,8 +33,8 @@ pub struct MouseConfig {
     // version: String,
     report_rate: u16,
     dpi_values: Vec<DpiValue>,
-    // current_dpi_index: u8,
-    // max_dpi_index: u8,
+    current_dpi_index: u8,
+    max_dpi_index: u8,
 }
 
 impl MouseConfig {
@@ -73,7 +73,9 @@ impl MouseConfig {
                 }
 
                 values
-            }
+            },
+            current_dpi_index: *buffer.get(MouseEepromAddr::CurrentDPI as usize).unwrap_or(&0),
+            max_dpi_index: *buffer.get(MouseEepromAddr::MaxDPI as usize).unwrap_or(&0)
         }
     }
 }

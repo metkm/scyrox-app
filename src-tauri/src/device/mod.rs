@@ -24,8 +24,7 @@ pub fn get_device() -> Option<HidDevice> {
         .filter(|device| {
             FILTERS
                 .iter()
-                .find(|filter| device.vendor_id() == filter.vendor_id && device.product_id() == filter.product_id)
-                .is_some()
+                .any(|filter| device.vendor_id() == filter.vendor_id && device.product_id() == filter.product_id)
         });
 
     for device_info in devices {
@@ -47,7 +46,7 @@ pub fn get_device() -> Option<HidDevice> {
         }
 
         if report_descriptor.output_reports
-            .get(0)
+            .first()
             .and_then(|report| report.report_id)
             .is_some_and(|report_id| u32::from(report_id) == REPORT_ID as u32) {
                 return Some(device);

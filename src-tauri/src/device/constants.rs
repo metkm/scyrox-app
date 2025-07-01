@@ -40,7 +40,7 @@ pub enum MouseEepromAddr {
     ReportRate = 0x00,            // 报告率
     MaxDPI = 0x02,                // 最大DPI档位
     CurrentDPI = 0x04,            // 当前DPI档位
-    LOD = 0x0A,                   // LOD高度
+    Lod = 0x0A,                   // LOD高度
     DPIValue = 0x0C,              // 第一档DPI值
     DPIColor = 0x20,              // 第一档DPI颜色
     DPIEffectMode = 0x4C,         // DPI灯效

@@ -6,7 +6,7 @@ pub fn get_usb_crc(buffer: &[u8]) -> u8 {
         .iter()
         .fold(0, |acc, e| acc + *e as i32);
 
-    crc = crc & 0xFF;
+    crc &= 0xFF;
     crc = 0x55 - crc;
 
     crc as u8

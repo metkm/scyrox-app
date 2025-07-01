@@ -1,6 +1,5 @@
 use std::sync::Mutex;
 
-use hidapi::HidDevice;
 use tauri::Manager;
 
 mod device;
@@ -28,7 +27,7 @@ pub fn run() {
             {
                 use tauri::Manager;
 
-                let window = app.get_webview_window("main").unwrap();
+                let _window = app.get_webview_window("main").unwrap();
                 // window.open_devtools();
             }
 

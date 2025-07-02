@@ -107,9 +107,13 @@ pub fn get_dongle_version(state: State<'_, Mutex<models::AppState>>) -> Result<S
 }
 
 #[tauri::command]
-pub fn update_dpi_value(state: State<'_, Mutex<models::AppState>>, index: u8, value: usize) -> Result<(), AppError> {
+pub fn update_dpi_value(
+    state: State<'_, Mutex<models::AppState>>,
+    index: u8,
+    value: usize,
+) -> Result<(), AppError> {
     if value < 10 {
-        return Err(AppError::InvalidValue)
+        return Err(AppError::InvalidValue);
     }
 
     let state = state.lock().unwrap();
@@ -117,31 +121,36 @@ pub fn update_dpi_value(state: State<'_, Mutex<models::AppState>>, index: u8, va
     let Some(device) = &state.device else {
         return Err(AppError::DeviceNotFound);
     };
-    
+
     let low = ((value / 50 - 1) & 0xFF) as u8;
     let high = (((value / 50 - 1) >> 8) & 0xFF) as u8;
 
-    let mut buffer = [
-        low,
-        low,
-        (high << 2) | (high << 6),
-        0x00
-    ];
+    let mut buffer = [low, low, (high << 2) | (high << 6), 0x00];
 
     let crc = get_usb_crc(&buffer);
 
     let Some(val) = buffer.get_mut(3) else {
-        return Err(AppError::CrcProblem)
+        return Err(AppError::CrcProblem);
     };
 
     *val = crc;
-    write_eeprom(device, Command::WriteFlashData, MouseEepromAddr::DPIValue as u16 + index as u16 * 4, &buffer, buffer.len() as u8)?;
+    write_eeprom(
+        device,
+        Command::WriteFlashData,
+        MouseEepromAddr::DPIValue as u16 + index as u16 * 4,
+        &buffer,
+        buffer.len() as u8,
+    )?;
 
     Ok(())
 }
 
 #[tauri::command]
-pub fn set_key(state: State<'_, Mutex<models::AppState>>, index: u16, value: [u8; 3]) -> Result<(), AppError> {
+pub fn set_key(
+    state: State<'_, Mutex<models::AppState>>,
+    index: u16,
+    value: [u8; 3],
+) -> Result<(), AppError> {
     let state = state.lock().unwrap();
 
     let Some(device) = &state.device else {
@@ -150,10 +159,10 @@ pub fn set_key(state: State<'_, Mutex<models::AppState>>, index: u16, value: [u8
 
     let addr = MouseEepromAddr::KeyFunction as u16 + index * 4;
     let mut buffer = [
-        *value.get(0).unwrap_or(&0),
+        *value.first().unwrap_or(&0),
         *value.get(1).unwrap_or(&0),
         *value.get(2).unwrap_or(&0),
-        0x00
+        0x00,
     ];
 
     let crc = get_usb_crc(&buffer);
@@ -173,7 +182,11 @@ pub fn set_key(state: State<'_, Mutex<models::AppState>>, index: u16, value: [u8
 }
 
 #[tauri::command]
-pub fn set_key_multimedia(state: State<'_, Mutex<models::AppState>>, index: u16, value: u16) -> Result<(), AppError> {
+pub fn set_key_multimedia(
+    state: State<'_, Mutex<models::AppState>>,
+    index: u16,
+    value: u16,
+) -> Result<(), AppError> {
     let state = state.lock().unwrap();
 
     let Some(device) = &state.device else {

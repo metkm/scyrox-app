@@ -47,14 +47,14 @@ onMounted(async () => {
 
 <template>
   <UApp>
-    <main class="flex flex-col p-4 space-y-4 min-h-screen max-w-4xl mx-auto w-full">
+    <main class="flex flex-col p-4 space-y-4 min-h-screen h-screen max-h-screen overflow-hidden max-w-2xl mx-auto w-full">
       <div
         v-if="mouseConfig"
-        class="grow flex items-center gap-4 justify-around"
+        class="grow flex items-center justify-center gap-14 overflow-hidden"
       >
         <TheKeys />
 
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 flex-1 basis-1/4">
           <VSuspense>
             <TheBattery />
           </VSuspense>

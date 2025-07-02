@@ -2,10 +2,9 @@ use std::sync::Mutex;
 
 use tauri::Manager;
 
-mod device;
 mod commands;
+mod device;
 mod models;
-
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -23,13 +22,7 @@ pub fn run() {
         .setup(|app| {
             let device = device::get_device();
 
-            app.manage(
-                Mutex::new(
-                    models::AppState {
-                        device
-                    }
-                )
-            );
+            app.manage(Mutex::new(models::AppState { device }));
 
             #[cfg(debug_assertions)] // only include this code on debug builds
             {

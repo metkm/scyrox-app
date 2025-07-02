@@ -8,6 +8,8 @@ const battery = ref(_battery)
 const intervalId = ref()
 
 onMounted(async () => {
+  battery.value = await invoke<Battery>('get_mouse_battery')
+
   intervalId.value = setInterval(async () => {
     battery.value = await invoke<Battery>('get_mouse_battery')
   }, 10_000)

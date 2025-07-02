@@ -4,13 +4,13 @@ use thiserror::Error;
 use crate::device::{constants::MouseEepromAddr, utils::buffer_to_hex};
 
 pub struct AppState {
-    pub device: Option<HidDevice>
+    pub device: Option<HidDevice>,
 }
 
 #[derive(serde::Serialize)]
 pub struct DpiValue {
     value: u32,
-    color: String
+    color: String,
 }
 
 impl DpiValue {
@@ -61,21 +61,26 @@ impl MouseConfig {
                 for i in 0..8 {
                     let dpi_base_addr = i * 4 + MouseEepromAddr::DPIValue as usize;
 
-                    let bytes: &[u8; 4] = &buffer[dpi_base_addr..dpi_base_addr + 4].try_into().unwrap();
-                    
+                    let bytes: &[u8; 4] =
+                        &buffer[dpi_base_addr..dpi_base_addr + 4].try_into().unwrap();
+
                     let color_base_add = dpi_base_addr + MouseEepromAddr::DPIColor as usize;
-                    let color_bytes: &[u8; 3] = &buffer[color_base_add..(color_base_add + 3)].try_into().unwrap();
+                    let color_bytes: &[u8; 3] = &buffer[color_base_add..(color_base_add + 3)]
+                        .try_into()
+                        .unwrap();
 
                     values.push(DpiValue {
                         value: DpiValue::bytes_to_value(bytes) as u32,
-                        color: buffer_to_hex(color_bytes)
+                        color: buffer_to_hex(color_bytes),
                     });
                 }
 
                 values
             },
-            current_dpi_index: *buffer.get(MouseEepromAddr::CurrentDPI as usize).unwrap_or(&0),
-            max_dpi_index: *buffer.get(MouseEepromAddr::MaxDPI as usize).unwrap_or(&0)
+            current_dpi_index: *buffer
+                .get(MouseEepromAddr::CurrentDPI as usize)
+                .unwrap_or(&0),
+            max_dpi_index: *buffer.get(MouseEepromAddr::MaxDPI as usize).unwrap_or(&0),
         }
     }
 }
@@ -86,7 +91,6 @@ pub struct Battery {
     pub level: u8,
 }
 
-
 #[derive(Error, Debug)]
 pub enum AppError {
     #[error("device not found")]
@@ -96,13 +100,14 @@ pub enum AppError {
     #[error("invalid value")]
     InvalidValue,
     #[error("crc problem")]
-    CrcProblem
+    CrcProblem,
 }
 
 impl serde::Serialize for AppError {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         serializer.serialize_str(self.to_string().as_ref())
     }
 }

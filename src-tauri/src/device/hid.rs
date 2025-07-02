@@ -52,7 +52,7 @@ pub fn write_eeprom(
         *val = crc;
     };
 
-    let written_count= device.write(&buffer)?;
+    let written_count = device.write(&buffer)?;
 
     Ok(written_count)
 }

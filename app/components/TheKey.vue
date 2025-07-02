@@ -77,7 +77,7 @@ const items = computed(() => {
 <template>
   <UDropdownMenu
     :items="items"
-    class="absolute -translate-x-[5%] top-24 right-0"
+    class="absolute"
   >
     <slot :selected-label="selectedLabel" />
   </UDropdownMenu>

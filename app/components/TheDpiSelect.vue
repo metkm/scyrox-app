@@ -16,8 +16,6 @@ const values = computed(() => props.dpiValues.slice(0, props.maxDpiIndex))
 const updateDpiIndex = async (dpi: DpiValue, index: number) => {
   dpiValue.value = dpi
   dpiIndex.value = index
-
-  await invoke('set_current_dpi_index', { index })
 }
 
 const handleChange = async () => {
@@ -44,13 +42,12 @@ const handleChange = async () => {
         v-for="(dpi, index) in values"
         :key="dpi.value"
       >
-        <UButton
-          :variant="dpi.value === dpiValue?.value ? 'solid' : 'soft'"
-          size="lg"
+        <TheDpiSelectItem
+          :dpi="dpi"
+          :index="index"
+          :selected="dpi.value === dpiValue.value"
           @click="updateDpiIndex(dpi, index)"
-        >
-          {{ dpi.value }}
-        </UButton>
+        />
       </li>
     </ol>
   </VContainer>

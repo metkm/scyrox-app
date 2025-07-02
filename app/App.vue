@@ -130,7 +130,7 @@ onMounted(async () => {
             <TheBattery />
           </VSuspense>
 
-          <TheDpi
+          <TheDpiSelect
             :current-dpi-index="mouseConfig.current_dpi_index"
             :dpi-values="mouseConfig.dpi_values"
             :max-dpi-index="mouseConfig.max_dpi_index"

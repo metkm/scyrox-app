@@ -85,3 +85,25 @@ pub fn get_mouse_battery(state: State<'_, Mutex<models::AppState>>) -> Result<Ba
         level: voltage_to_level(voltage),
     })
 }
+
+#[tauri::command]
+pub fn get_dongle_version(state: State<'_, Mutex<models::AppState>>) -> Result<String, AppError> {
+    let state = state.lock().unwrap();
+
+    let Some(device) = &state.device else {
+        return Err(AppError::DeviceNotFound);
+    };
+
+    let mut buffer = [0_u8; 10];
+    device::read::read(device, Command::GetDongleVersion, 0x00, &[], &mut buffer)?;
+
+    println!("{:?}", buffer);
+
+    let version_string = format!(
+        "{}.{:02X}",
+        buffer.get(6).unwrap_or(&0),
+        buffer.get(7).unwrap_or(&0)
+    );
+
+    Ok(version_string)
+}

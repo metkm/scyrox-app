@@ -26,6 +26,9 @@ onMounted(async () => {
 
     const battery = await invoke<{ charging: boolean, level: number }>('get_mouse_battery')
     console.log(battery)
+
+    const version = await invoke<string>('get_dongle_version')
+    console.log(version)
   }
   catch (err) {
     console.log(err)
@@ -47,6 +50,7 @@ const handleInputReport = async (event: HIDInputReportEvent) => {
       break
     case commands.GetDongleVersion:
       deviceData.version = `${slice[0]}.${slice[1]?.toString(16).padStart(2, '0')}`
+      console.log(slice)
       break
     case commands.ReadFlashData:
       {
@@ -63,8 +67,6 @@ const handleInputReport = async (event: HIDInputReportEvent) => {
 }
 
 const parseReadDeviceEeprom = () => {
-  console.log(flashData)
-
   deviceData.maxDpi = flashData[mouseEepromAddr.MaxDPI] || 0
   deviceData.currentDpiIndex = flashData[mouseEepromAddr.CurrentDPI] || 0
   deviceData.reportRate
@@ -126,12 +128,12 @@ const getDevice = async () => {
   // // reading.value = true
 
   // // await writeDeviceEeprom(device.value, commands.PCDriverStatus, 0, [1])
-  // // await writeDeviceEeprom(device.value, commands.GetDongleVersion, 0, [])
+  // await writeDeviceEeprom(device.value, commands.GetDongleVersion, 0, [])
   // // await writeDeviceEeprom(device.value, commands.BatteryLevel, 0, [])
 
   // // await sleep(50)
-  await readDeviceFullEeprom(device.value)
-  parseReadDeviceEeprom()
+  // await readDeviceFullEeprom(device.value)
+  // parseReadDeviceEeprom()
 
   // reading.value = false
   read.value = true

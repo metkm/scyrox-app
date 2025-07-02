@@ -40,7 +40,10 @@ const multimediaItems = computed(() => {
         const multiKey = multimediaKeys[index]
 
         if (multiKey) {
-          // await setMultimedia(device.value, props.keyIndex, multiKey)
+          await invoke('set_key_multimedia', {
+            index: props.keyIndex,
+            value: multiKey,
+          })
         }
 
         handleKeyUpdate(label, [5, 0, 0])

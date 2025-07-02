@@ -171,3 +171,39 @@ pub fn set_key(state: State<'_, Mutex<models::AppState>>, index: u16, value: [u8
 
     Ok(())
 }
+
+#[tauri::command]
+pub fn set_key_multimedia(state: State<'_, Mutex<models::AppState>>, index: u16, value: u16) -> Result<(), AppError> {
+    let state = state.lock().unwrap();
+
+    let Some(device) = &state.device else {
+        return Err(AppError::DeviceNotFound);
+    };
+
+    let addr = MouseEepromAddr::ShortcutKey as u16 + index * 0x20;
+    let mut buffer: [u8; 8] = [
+        0x02,
+        0x82,
+        (value & 0xFF) as u8,
+        (value >> 8) as u8,
+        0x42,
+        (value & 0xFF) as u8,
+        (value >> 8) as u8,
+        0x00,
+    ];
+
+    let crc = get_usb_crc(&buffer);
+    if let Some(val) = buffer.last_mut() {
+        *val = crc;
+    }
+
+    write_eeprom(
+        device,
+        Command::WriteFlashData,
+        addr,
+        &buffer,
+        buffer.len() as u8,
+    )?;
+
+    Ok(())
+}

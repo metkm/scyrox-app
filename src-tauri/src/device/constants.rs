@@ -35,7 +35,7 @@ impl From<Command> for u8 {
     }
 }
 
-#[repr(u8)]
+#[repr(u16)]
 pub enum MouseEepromAddr {
     ReportRate = 0x00,            // 报告率
     MaxDPI = 0x02,                // 最大DPI档位
@@ -63,7 +63,7 @@ pub enum MouseEepromAddr {
     SensorMode = 0xB9,
     KeyFunction = 0x60,
 
-    // ShortcutKey = 0x100,
+    ShortcutKey = 0x100,
     // Macro = 0x0300,
 
     // Optional: use aliasing for duplicated address

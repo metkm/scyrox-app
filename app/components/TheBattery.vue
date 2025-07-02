@@ -2,15 +2,27 @@
 import { invoke } from '@tauri-apps/api/core'
 import type { Battery } from '~/types'
 
-const battery = await invoke<Battery>('get_mouse_battery')
+const _battery = await invoke<Battery>('get_mouse_battery')
+
+const battery = ref(_battery)
+const intervalId = ref()
+
+onMounted(async () => {
+  intervalId.value = setInterval(async () => {
+    battery.value = await invoke<Battery>('get_mouse_battery')
+  }, 10_000)
+})
+
+onUnmounted(() => {
+  clearInterval(intervalId.value)
+  intervalId.value = undefined
+})
 </script>
 
 <template>
   <VContainer title="Battery">
     <p class="font-medium text-primary">
       {{ `${battery.level}%${battery.charging ? ' (charging)' : ''}` }}
-
-      <!-- {{ battery.level.toFixed(2) }}% -->
     </p>
 
     <div class="-mb-4 -mx-4">

@@ -21,7 +21,10 @@ const updateDpiIndex = async (dpi: DpiValue, index: number) => {
 }
 
 const handleChange = async () => {
-  // await setDpiValue(device.value, dpiIndex.value, dpiValue.value.value)
+  await invoke('update_dpi_value', {
+    index: dpiIndex.value,
+    value: dpiValue.value.value,
+  })
 }
 </script>
 

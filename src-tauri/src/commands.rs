@@ -5,13 +5,13 @@ use tauri::State;
 use crate::device;
 use crate::device::constants::{Command, MouseEepromAddr};
 use crate::device::hid::write_eeprom;
-use crate::device::utils::voltage_to_level;
+use crate::device::utils::{get_usb_crc, voltage_to_level};
 use crate::models::{self, AppError, Battery, MouseConfig};
 
 #[tauri::command]
 pub fn set_current_dpi_index(
     state: State<'_, Mutex<models::AppState>>,
-    index: u8,
+    index: usize,
 ) -> Result<usize, AppError> {
     let state = state.lock().unwrap();
 
@@ -23,7 +23,7 @@ pub fn set_current_dpi_index(
         device,
         Command::WriteFlashData,
         MouseEepromAddr::CurrentDPI.into(),
-        &[index, 0x55 - index],
+        &[index as u8, 0x55 - index as u8],
         2,
     )
 }
@@ -104,4 +104,38 @@ pub fn get_dongle_version(state: State<'_, Mutex<models::AppState>>) -> Result<S
     );
 
     Ok(version_string)
+}
+
+#[tauri::command]
+pub fn update_dpi_value(state: State<'_, Mutex<models::AppState>>, index: u8, value: usize) -> Result<(), AppError> {
+    if value < 10 {
+        return Err(AppError::InvalidValue)
+    }
+
+    let state = state.lock().unwrap();
+
+    let Some(device) = &state.device else {
+        return Err(AppError::DeviceNotFound);
+    };
+    
+    let low = ((value / 50 - 1) & 0xFF) as u8;
+    let high = (((value / 50 - 1) >> 8) & 0xFF) as u8;
+
+    let mut buffer = [
+        low,
+        low,
+        (high << 2) | (high << 6),
+        0x00
+    ];
+
+    let crc = get_usb_crc(&buffer);
+
+    let Some(val) = buffer.get_mut(3) else {
+        return Err(AppError::HidError(hidapi::HidError::HidApiErrorEmpty))
+    };
+
+    *val = crc;
+    write_eeprom(device, Command::WriteFlashData, MouseEepromAddr::DPIValue as u16 + index as u16 * 4, &buffer, buffer.len() as u8)?;
+
+    Ok(())
 }

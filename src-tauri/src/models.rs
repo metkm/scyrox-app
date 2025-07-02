@@ -94,7 +94,9 @@ pub enum AppError {
     #[error("hid error")]
     HidError(#[from] hidapi::HidError),
     #[error("invalid value")]
-    InvalidValue
+    InvalidValue,
+    #[error("crc problem")]
+    CrcProblem
 }
 
 impl serde::Serialize for AppError {

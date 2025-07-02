@@ -131,11 +131,43 @@ pub fn update_dpi_value(state: State<'_, Mutex<models::AppState>>, index: u8, va
     let crc = get_usb_crc(&buffer);
 
     let Some(val) = buffer.get_mut(3) else {
-        return Err(AppError::HidError(hidapi::HidError::HidApiErrorEmpty))
+        return Err(AppError::CrcProblem)
     };
 
     *val = crc;
     write_eeprom(device, Command::WriteFlashData, MouseEepromAddr::DPIValue as u16 + index as u16 * 4, &buffer, buffer.len() as u8)?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub fn set_key(state: State<'_, Mutex<models::AppState>>, index: u16, value: [u8; 3]) -> Result<(), AppError> {
+    let state = state.lock().unwrap();
+
+    let Some(device) = &state.device else {
+        return Err(AppError::DeviceNotFound);
+    };
+
+    let addr = MouseEepromAddr::KeyFunction as u16 + index * 4;
+    let mut buffer = [
+        *value.get(0).unwrap_or(&0),
+        *value.get(1).unwrap_or(&0),
+        *value.get(2).unwrap_or(&0),
+        0x00
+    ];
+
+    let crc = get_usb_crc(&buffer);
+    if let Some(last_val) = buffer.last_mut() {
+        *last_val = crc;
+    }
+
+    write_eeprom(
+        device,
+        Command::WriteFlashData,
+        addr,
+        &buffer,
+        buffer.len() as u8,
+    )?;
 
     Ok(())
 }

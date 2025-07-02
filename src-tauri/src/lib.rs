@@ -16,7 +16,8 @@ pub fn run() {
             commands::read_mouse_config,
             commands::get_mouse_battery,
             commands::get_dongle_version,
-            commands::update_dpi_value
+            commands::update_dpi_value,
+            commands::set_key
         ])
         .setup(|app| {
             let device = device::get_device();

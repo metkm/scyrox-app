@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
+import { invoke } from '@tauri-apps/api/core'
 import { multimediaKeys } from '~/constants'
-// import { setKeyFunction, setMultimedia } from '~/device'
 
 const props = defineProps<{
   keyIndex: number
@@ -12,7 +12,10 @@ const selectedLabel = ref()
 const handleKeyUpdate = async (label: string, value: number[]) => {
   selectedLabel.value = label
 
-  // await setKeyFunction(device.value, props.keyIndex, value)
+  await invoke('set_key', {
+    index: props.keyIndex,
+    value,
+  })
 }
 
 const buttonLabels = ['Left button', 'Right button', 'Middle button', 'Back button', 'Forward button']

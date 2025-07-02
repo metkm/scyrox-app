@@ -1,16 +1,13 @@
-<script setup lang="ts">
-</script>
-
 <template>
-  <div class="background bg-no-repeat w-[295px] aspect-[295/557] relative">
-    <VKey
+  <div class="background bg-contain bg-no-repeat w-44 lg:w-64 transition-all aspect-[295/557] relative shrink-0">
+    <TheKey
       v-slot="{ selectedLabel }"
       :key-index="1"
     >
-      <UButton>
+      <UButton size="sm">
         {{ selectedLabel || 'Right button' }}
       </UButton>
-    </VKey>
+    </TheKey>
   </div>
 </template>
 

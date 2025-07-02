@@ -19,7 +19,9 @@
         "transparent": true,
         "windowEffects": {
           "effects": ["mica"]
-        }
+        },
+        "minHeight": 370,
+        "minWidth": 590
       }
     ],
     "security": {

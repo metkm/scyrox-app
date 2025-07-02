@@ -97,8 +97,6 @@ pub fn get_dongle_version(state: State<'_, Mutex<models::AppState>>) -> Result<S
     let mut buffer = [0_u8; 10];
     device::read::read(device, Command::GetDongleVersion, 0x00, &[], &mut buffer)?;
 
-    println!("{:?}", buffer);
-
     let version_string = format!(
         "{}.{:02X}",
         buffer.get(6).unwrap_or(&0),

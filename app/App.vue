@@ -47,17 +47,21 @@ onMounted(async () => {
 
 <template>
   <UApp>
-    <main class="flex flex-col p-4 space-y-4 min-h-screen h-screen max-h-screen overflow-hidden max-w-2xl mx-auto w-full">
+    <main class="flex flex-col gap-4 p-4 min-h-screen h-screen max-h-screen overflow-hidden">
+      <AppSuspense>
+        <AppSettingsMinimizeToTray />
+      </AppSuspense>
+
       <div
         v-if="mouseConfig"
-        class="grow flex items-center justify-center gap-14 overflow-hidden"
+        class="grow flex items-center justify-center gap-14 overflow-hidden max-w-2xl w-full mx-auto"
       >
         <TheKeys />
 
         <div class="flex flex-col gap-4 flex-1 basis-1/4">
-          <VSuspense>
+          <AppSuspense>
             <TheBattery />
-          </VSuspense>
+          </AppSuspense>
 
           <TheDpiSelect
             :current-dpi-index="mouseConfig.current_dpi_index"

@@ -22,16 +22,18 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <VContainer title="Battery">
-    <p class="font-medium text-primary">
-      {{ `${battery.level}%${battery.charging ? ' (charging)' : ''}` }}
-    </p>
+  <UCard>
+    <template #header>
+      <p class="font-medium text-primary">
+        {{ `${battery.level}%${battery.charging ? ' (charging)' : ''}` }}
+      </p>
+    </template>
 
-    <div class="-mb-4 -mx-4">
+    <div class="bg-elevated rounded-full overflow-hidden">
       <div
-        class="h-0.5 bg-primary "
+        class="h-1 rounded-full bg-primary"
         :style="{ width: `${battery.level}%` }"
       />
     </div>
-  </VContainer>
+  </UCard>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { invoke } from '@tauri-apps/api/core'
-import type { DpiValue } from '~/constants'
+import type { DpiValue } from '~/types'
 
 const props = defineProps<{
   dpi: DpiValue

@@ -3,8 +3,10 @@ use thiserror::Error;
 
 use crate::device::{constants::MouseEepromAddr, utils::buffer_to_hex};
 
+#[derive(Default)]
 pub struct AppState {
     pub device: Option<HidDevice>,
+    pub minimize_to_tray: bool
 }
 
 #[derive(serde::Serialize)]

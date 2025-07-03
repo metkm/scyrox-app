@@ -25,12 +25,12 @@ onUnmounted(() => {
   <AppContainer title="Battery">
     <div class="relative flex h-12 -m-6 bg-elevated">
       <div
-        class="bg-primary/80"
+        class="bg-primary/80 transition-all"
         :style="{ width: `${battery.level}%` }"
       />
 
       <div
-        class="flex items-center absolute inset-0 px-2"
+        class="flex items-center absolute inset-0 px-2 transition-all"
         :style="{
           paddingLeft: `calc(${battery.level / 2}% + calc(var(--spacing) * 2))`,
         }"

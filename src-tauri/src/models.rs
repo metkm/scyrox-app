@@ -1,7 +1,7 @@
 use hidapi::HidDevice;
 use thiserror::Error;
 
-use crate::device::{constants::MouseEepromAddr, utils::buffer_to_hex};
+use crate::device::{constants::MouseEepromAddr, utils::{buffer_to_hex, voltage_to_level}};
 
 #[derive(Default)]
 pub struct AppState {
@@ -91,6 +91,18 @@ impl MouseConfig {
 pub struct Battery {
     pub charging: bool,
     pub level: u8,
+}
+
+impl Battery {
+    pub fn from_buffer(buffer: &[u8]) -> Battery {
+        let voltage = i16::from_be_bytes([*buffer.get(8).unwrap_or(&0), *buffer.get(9).unwrap_or(&0)]);
+        let level = voltage_to_level(voltage);
+
+        Battery {
+            charging: buffer.get(7).unwrap_or(&0) == &1,
+            level,
+        }
+    }
 }
 
 #[derive(Error, Debug)]

@@ -25,7 +25,7 @@ pub fn run() {
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&quit_i]).unwrap();
 
-            let _tray = TrayIconBuilder::new()
+            let _tray = TrayIconBuilder::with_id("tray_icon_battery")
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "quit" => { app.exit(0) }
                     _ => {}

@@ -5,7 +5,7 @@ use tauri::State;
 use crate::device;
 use crate::device::constants::{Command, MouseEepromAddr};
 use crate::device::hid::write_eeprom;
-use crate::device::utils::{get_usb_crc, voltage_to_level};
+use crate::device::utils::get_usb_crc;
 use crate::models::{self, AppError, Battery, MouseConfig};
 
 #[tauri::command]
@@ -68,7 +68,7 @@ pub fn read_mouse_config(
 }
 
 #[tauri::command]
-pub fn get_mouse_battery(state: State<'_, Mutex<models::AppState>>) -> Result<Battery, AppError> {
+pub fn get_mouse_battery(state: State<'_, Mutex<models::AppState>>, app_handle: tauri::AppHandle) -> Result<Battery, AppError> {
     let state = state.lock().unwrap();
 
     let Some(device) = &state.device else {
@@ -78,12 +78,20 @@ pub fn get_mouse_battery(state: State<'_, Mutex<models::AppState>>) -> Result<Ba
     let mut buffer = [0_u8; 10];
     device::read::read(device, Command::BatteryLevel, 0x00, &[], &mut buffer)?;
 
-    let voltage = i16::from_be_bytes([*buffer.get(8).unwrap_or(&0), *buffer.get(9).unwrap_or(&0)]);
+    let battery = Battery::from_buffer(&buffer);
 
-    Ok(Battery {
-        charging: buffer.get(7).unwrap_or(&0) == &1,
-        level: voltage_to_level(voltage),
-    })
+    if let Some(tray_icon) = app_handle.tray_by_id("tray_icon_battery") {
+        tray_icon
+            .set_tooltip(Some(
+                format!("{:?}%", battery.level)
+            ))
+            .inspect_err(|err| {
+                eprintln!("{:?}", err)
+            })
+            .ok();
+    }
+
+    Ok(battery)
 }
 
 #[tauri::command]

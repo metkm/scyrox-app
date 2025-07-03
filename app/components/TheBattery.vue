@@ -22,18 +22,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <UCard>
-    <template #header>
-      <p class="font-medium text-primary">
-        {{ `${battery.level}%${battery.charging ? ' (charging)' : ''}` }}
-      </p>
-    </template>
-
-    <div class="bg-elevated rounded-full overflow-hidden">
+  <AppContainer title="Battery">
+    <div class="relative flex h-12 -m-6 bg-elevated">
       <div
-        class="h-1 rounded-full bg-primary"
+        class="bg-primary/80"
         :style="{ width: `${battery.level}%` }"
       />
+
+      <div
+        class="flex items-center absolute inset-0 px-2"
+        :style="{
+          paddingLeft: `calc(${battery.level / 2}% + calc(var(--spacing) * 2))`,
+        }"
+      >
+        <p class="text-lg font-medium text-shadow-2xs text-shadow-black -translate-x-1/2">
+          {{ `${battery.level}%${battery.charging ? ' (charging)' : ''}` }}
+        </p>
+      </div>
     </div>
-  </UCard>
+  </AppContainer>
 </template>

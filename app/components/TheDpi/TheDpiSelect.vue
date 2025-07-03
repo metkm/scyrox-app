@@ -27,7 +27,7 @@ const handleChange = async () => {
 </script>
 
 <template>
-  <UCard>
+  <AppContainer title="Dpi value">
     <div class="flex flex-col gap-4">
       <USlider
         v-model="dpiValue.value"
@@ -53,5 +53,5 @@ const handleChange = async () => {
         </li>
       </ol>
     </div>
-  </UCard>
+  </AppContainer>
 </template>

@@ -33,6 +33,7 @@ pub fn run() {
             let menu = Menu::with_items(app, &[&quit_i]).unwrap();
 
             let _tray = TrayIconBuilder::with_id("tray_icon_battery")
+                .icon(app.default_window_icon().unwrap().clone())
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "quit" => app.exit(0),
                     _ => {}

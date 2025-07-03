@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 
-use tauri::{menu::{Menu, MenuItem}, tray::TrayIconBuilder, Manager, WindowEvent};
+use tauri::{menu::{Menu, MenuItem}, tray::{MouseButton, TrayIconBuilder, TrayIconEvent}, Manager, WindowEvent};
 
 mod commands;
 mod device;
@@ -24,11 +24,19 @@ pub fn run() {
         .setup(|app| {
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&quit_i]).unwrap();
-
+            
             let _tray = TrayIconBuilder::with_id("tray_icon_battery")
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "quit" => { app.exit(0) }
                     _ => {}
+                })
+                .show_menu_on_left_click(false)
+                .on_tray_icon_event(|icon, event| {
+                    if let TrayIconEvent::Click { button: MouseButton::Left, .. } = event {
+                        let app_handle = icon.app_handle();
+                        let window = app_handle.get_webview_window("main").unwrap();
+                        window.show().ok();
+                    };
                 })
                 .menu(&menu)
                 .build(app)?;

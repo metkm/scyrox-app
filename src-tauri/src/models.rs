@@ -2,13 +2,19 @@ use hidapi::HidDevice;
 use thiserror::Error;
 
 use crate::device::{
-    constants::MouseEepromAddr,
-    utils::{buffer_to_hex, voltage_to_level},
+    self, constants::MouseEepromAddr, utils::{buffer_to_hex, voltage_to_level}
 };
 
-#[derive(Default)]
 pub struct AppState {
     pub device: Option<HidDevice>,
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        Self {
+            device: device::get_device()
+        }
+    }
 }
 
 #[derive(serde::Serialize)]

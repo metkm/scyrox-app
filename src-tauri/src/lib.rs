@@ -1,9 +1,11 @@
 use std::sync::Mutex;
 
 use tauri::{
-    menu::{Menu, MenuItem}, tray::{MouseButton, TrayIconBuilder, TrayIconEvent}, App, Manager, Window, WindowEvent
+    menu::{Menu, MenuItem}, tray::{MouseButton, TrayIconBuilder, TrayIconEvent}, App, Emitter, Manager, Window, WindowEvent
 };
 use tauri_plugin_store::StoreExt;
+
+use crate::{device::constants::Command, models::AppState};
 
 mod commands;
 mod device;
@@ -13,13 +15,13 @@ pub fn handle_window_event(window: &Window, event: &WindowEvent) {
     if let WindowEvent::CloseRequested { api, .. } = event {
         let app_handle = window.app_handle();
 
-        let minimize_to_tray = app_handle.store("config.json")
-            .and_then(|store| {
-                Ok(
-                    store.get("minimize_to_tray")
-                        .and_then(|value| value.as_bool())
-                        .unwrap_or(false)
-                )
+        let minimize_to_tray = app_handle
+            .store("config.json")
+            .map(|store| {
+                store
+                    .get("minimize_to_tray")
+                    .and_then(|value| value.as_bool())
+                    .unwrap_or(false)
             })
             .unwrap_or(false);
 
@@ -36,9 +38,10 @@ pub fn handle_setup(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
 
     let _tray = TrayIconBuilder::with_id("tray_icon_battery")
         .icon(app.default_window_icon().unwrap().clone())
-        .on_menu_event(|app, event| match event.id.as_ref() {
-            "quit" => app.exit(0),
-            _ => {}
+        .on_menu_event(|app, event| {
+            if event.id.as_ref() == "quit" {
+                app.exit(0);
+            }
         })
         .show_menu_on_left_click(false)
         .on_tray_icon_event(|icon, event| {
@@ -55,13 +58,38 @@ pub fn handle_setup(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
         .menu(&menu)
         .build(app)?;
 
-    let device = device::get_device();
-    let state = Mutex::new(models::AppState {
-        device,
-        ..Default::default()
-    });
+    app.manage(Mutex::new(models::AppState::default()));
 
-    app.manage(state);
+    let app_handle = app.handle().clone();
+
+    tauri::async_runtime::spawn(async move {
+        let mut buffer = [0x00; 16];
+        let state = app_handle.state::<Mutex<AppState>>();
+
+        loop {
+            tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+
+            {
+                let state = state.lock().unwrap();
+
+                let Some(device) = &state.device else {
+                    continue;
+                };
+
+                let Ok(read_count) = device.read_timeout(&mut buffer, 50) else {
+                    continue;
+                };
+
+                if read_count == 0 || *buffer.get(1).unwrap_or(&0) != Command::StatusChanged as u8 {
+                    continue;
+                }
+
+                if let Some(change_id) = buffer.get(6) {
+                    app_handle.emit("status-change", change_id).ok();
+                }
+            }
+        }
+    });
 
     #[cfg(debug_assertions)] // only include this code on debug builds
     {

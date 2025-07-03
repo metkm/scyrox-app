@@ -86,7 +86,7 @@ pub fn get_mouse_battery(
     if let Some(tray_icon) = app_handle.tray_by_id("tray_icon_battery") {
         tray_icon
             .set_tooltip(Some(format!("{:?}%", battery.level)))
-            .inspect_err(|err| eprintln!("{:?}", err))
+            .inspect_err(|err| eprintln!("{err:?}"))
             .ok();
     }
 

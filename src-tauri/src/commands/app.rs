@@ -5,12 +5,10 @@ pub fn get_minimize_to_tray(
     app_handle: tauri::AppHandle,
 ) -> bool {
     app_handle.store("config.json")
-        .and_then(|store| {
-            Ok(
-                store.get("minimize_to_tray")
-                    .and_then(|value| value.as_bool())
-                    .unwrap_or(false)
-            )
+        .map(|store| {
+            store.get("minimize_to_tray")
+                .and_then(|value| value.as_bool())
+                .unwrap_or(false)
         })
         .unwrap_or(false)
 }

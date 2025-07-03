@@ -1,17 +1,29 @@
 <script setup lang="ts">
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event'
 import type { MouseConfig } from './types'
 
 const mouseConfig = shallowRef<MouseConfig>()
 
-onMounted(async () => {
+const readMouseConfig = () => {
   invoke<MouseConfig>('read_mouse_config')
     .then(config => mouseConfig.value = config)
     .catch(err => console.log(err))
+}
 
-  getCurrentWindow()
-    .show()
+onMounted(async () => {
+  listen<number>('status-change', (event) => {
+    if (event.payload === 1) {
+      readMouseConfig()
+    }
+  })
+
+  readMouseConfig()
+  getCurrentWindow().show()
+
+  // const window = getCurrentWindow()
+  // window.show()
 })
 
 // const parseReadDeviceEeprom = () => {

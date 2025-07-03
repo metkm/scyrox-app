@@ -1,12 +1,14 @@
 use hidapi::HidDevice;
 use thiserror::Error;
 
-use crate::device::{constants::MouseEepromAddr, utils::{buffer_to_hex, voltage_to_level}};
+use crate::device::{
+    constants::MouseEepromAddr,
+    utils::{buffer_to_hex, voltage_to_level},
+};
 
 #[derive(Default)]
 pub struct AppState {
     pub device: Option<HidDevice>,
-    pub minimize_to_tray: bool
 }
 
 #[derive(serde::Serialize)]
@@ -95,7 +97,8 @@ pub struct Battery {
 
 impl Battery {
     pub fn from_buffer(buffer: &[u8]) -> Battery {
-        let voltage = i16::from_be_bytes([*buffer.get(8).unwrap_or(&0), *buffer.get(9).unwrap_or(&0)]);
+        let voltage =
+            i16::from_be_bytes([*buffer.get(8).unwrap_or(&0), *buffer.get(9).unwrap_or(&0)]);
         let level = voltage_to_level(voltage);
 
         Battery {

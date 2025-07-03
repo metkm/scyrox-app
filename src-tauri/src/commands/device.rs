@@ -68,7 +68,10 @@ pub fn read_mouse_config(
 }
 
 #[tauri::command]
-pub fn get_mouse_battery(state: State<'_, Mutex<models::AppState>>, app_handle: tauri::AppHandle) -> Result<Battery, AppError> {
+pub fn get_mouse_battery(
+    state: State<'_, Mutex<models::AppState>>,
+    app_handle: tauri::AppHandle,
+) -> Result<Battery, AppError> {
     let state = state.lock().unwrap();
 
     let Some(device) = &state.device else {
@@ -78,16 +81,12 @@ pub fn get_mouse_battery(state: State<'_, Mutex<models::AppState>>, app_handle: 
     let mut buffer = [0_u8; 10];
     device::read::read(device, Command::BatteryLevel, 0x00, &[], &mut buffer)?;
 
-    let battery = Battery::from_buffer(&buffer);
+    let battery: Battery = Battery::from_buffer(&buffer);
 
     if let Some(tray_icon) = app_handle.tray_by_id("tray_icon_battery") {
         tray_icon
-            .set_tooltip(Some(
-                format!("{:?}%", battery.level)
-            ))
-            .inspect_err(|err| {
-                eprintln!("{:?}", err)
-            })
+            .set_tooltip(Some(format!("{:?}%", battery.level)))
+            .inspect_err(|err| eprintln!("{:?}", err))
             .ok();
     }
 

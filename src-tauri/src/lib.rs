@@ -1,6 +1,11 @@
 use std::sync::Mutex;
 
-use tauri::{menu::{Menu, MenuItem}, tray::{MouseButton, TrayIconBuilder, TrayIconEvent}, Manager, WindowEvent};
+use tauri::{
+    Manager, WindowEvent,
+    menu::{Menu, MenuItem},
+    tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
+};
+use tauri_plugin_store::StoreExt;
 
 mod commands;
 mod device;
@@ -9,6 +14,7 @@ mod models;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             commands::device::set_current_dpi_index,
@@ -21,18 +27,23 @@ pub fn run() {
             commands::app::set_minimize_to_tray,
             commands::app::get_minimize_to_tray
         ])
+        .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&quit_i]).unwrap();
-            
+
             let _tray = TrayIconBuilder::with_id("tray_icon_battery")
                 .on_menu_event(|app, event| match event.id.as_ref() {
-                    "quit" => { app.exit(0) }
+                    "quit" => app.exit(0),
                     _ => {}
                 })
                 .show_menu_on_left_click(false)
                 .on_tray_icon_event(|icon, event| {
-                    if let TrayIconEvent::Click { button: MouseButton::Left, .. } = event {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        ..
+                    } = event
+                    {
                         let app_handle = icon.app_handle();
                         let window = app_handle.get_webview_window("main").unwrap();
                         window.show().ok();
@@ -62,10 +73,18 @@ pub fn run() {
         .on_window_event(|window, event| {
             if let WindowEvent::CloseRequested { api, .. } = event {
                 let app_handle = window.app_handle();
-                let app_state = app_handle.state::<Mutex<models::AppState>>();
-                let state = app_state.lock().unwrap();
 
-                if state.minimize_to_tray {
+                let minimize_to_tray = app_handle.store("config.json")
+                    .and_then(|store| {
+                        Ok(
+                            store.get("minimize_to_tray")
+                                .and_then(|value| value.as_bool())
+                                .unwrap_or(false)
+                        )
+                    })
+                    .unwrap_or(false);
+
+                if minimize_to_tray {
                     window.hide().unwrap();
                     api.prevent_close();
                 }

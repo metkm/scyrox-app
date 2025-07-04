@@ -57,7 +57,7 @@ const secondsToFormat = (value: number) => {
           block
           @click="setPerformanceTime(duration)"
         >
-          {{ secondsToFormat(320) }}
+          {{ secondsToFormat(duration) }}
         </UButton>
       </li>
     </ol>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event'
 import type { DpiValue } from '~/types'
 
 const props = defineProps<{
@@ -8,47 +9,55 @@ const props = defineProps<{
   maxDpiIndex: number
 }>()
 
-const dpiValue = ref<DpiValue>(props.dpiValues[props.currentDpiIndex] || { color: '#FFFFFF', value: 1000 })
-const dpiIndex = ref(props.currentDpiIndex || 0)
+const dpi = ref<DpiValue>(props.dpiValues[props.currentDpiIndex]!)
+const dpiIndex = ref<number>(props.currentDpiIndex || 1)
 
-const values = computed(() => props.dpiValues.slice(0, props.maxDpiIndex))
+const dpiList = computed(() => props.dpiValues.slice(0, props.maxDpiIndex))
 
-const updateDpiIndex = async (dpi: DpiValue, index: number) => {
-  dpiValue.value = dpi
+const updateDpi = async (_dpi: DpiValue, index: number) => {
+  dpi.value = _dpi
   dpiIndex.value = index
 }
 
 const handleChange = async () => {
   await invoke('update_dpi_value', {
     index: dpiIndex.value,
-    value: dpiValue.value.value,
+    value: dpi.value.value,
   })
 }
+
+onMounted(() => {
+  listen<number>('status-change', async (event) => {
+    if (event.payload === 1) {
+      dpiIndex.value = await invoke<number>('get_current_dpi_index')
+    }
+  })
+})
 </script>
 
 <template>
   <AppContainer title="Dpi value">
     <div class="flex flex-col gap-4">
       <USlider
-        v-model="dpiValue.value"
-        :default-value="values[currentDpiIndex]?.value"
+        v-model="dpi.value"
+        :default-value="dpiList[currentDpiIndex]?.value"
         :min="0"
-        :max="values[maxDpiIndex - 1]?.value"
+        :max="dpiList[maxDpiIndex - 1]?.value"
         tooltip
         @change="handleChange"
       />
 
       <ol class="flex flex-wrap items-center gap-4">
         <li
-          v-for="(dpi, index) in values"
-          :key="dpi.value"
+          v-for="(_dpi, index) in dpiList"
+          :key="_dpi.value"
           class="grow"
         >
           <TheDpiSelectItem
-            :dpi="dpi"
+            :dpi="_dpi"
             :index="index"
-            :selected="dpi.value === dpiValue.value"
-            @click="updateDpiIndex(dpi, index)"
+            :selected="dpiIndex === index"
+            @click="updateDpi(dpi, index)"
           />
         </li>
       </ol>

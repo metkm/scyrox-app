@@ -29,6 +29,22 @@ pub fn set_current_dpi_index(
 }
 
 #[tauri::command]
+pub fn get_current_dpi_index(
+    state: State<'_, Mutex<models::AppState>>,
+) -> Result<u8, AppError> {
+    let state = state.lock().unwrap();
+
+    let Some(device) = &state.device else {
+        return Err(AppError::DeviceNotFound);
+    };
+
+    let mut buffer = [0x00; 16];
+    device::read::read(device, Command::ReadFlashData, MouseEepromAddr::CurrentDPI.into(), &[0x00, 0x00], &mut buffer)?;
+    
+    Ok(*buffer.get(6).unwrap_or(&1))
+}
+
+#[tauri::command]
 pub fn read_mouse_config(
     state: State<'_, Mutex<models::AppState>>,
 ) -> Result<MouseConfig, AppError> {

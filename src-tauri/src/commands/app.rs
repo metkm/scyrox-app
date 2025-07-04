@@ -15,7 +15,6 @@ pub fn get_minimize_to_tray(
 
 #[tauri::command]
 pub fn set_minimize_to_tray(
-    // state: State<'_, Mutex<models::AppState>>,
     app_handle: tauri::AppHandle,
     value: bool,
 ) {

@@ -109,6 +109,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             commands::device::set_current_dpi_index,
+            commands::device::get_current_dpi_index,
             commands::device::read_mouse_config,
             commands::device::get_mouse_battery,
             commands::device::get_dongle_version,

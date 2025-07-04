@@ -12,6 +12,7 @@ export interface MouseConfig {
   dpi_values: DpiValue[]
   current_dpi_index: number
   max_dpi_index: number
+  sleep_time: number
 }
 
 export interface Battery {

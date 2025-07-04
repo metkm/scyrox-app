@@ -34,7 +34,7 @@ const updateDpiValue = async () => {
   <div class="flex flex-col gap-2">
     <UButton
       :variant="selected ? 'solid' : 'soft'"
-      size="lg"
+      block
       @click="updateDpiIndex"
       @dblclick="open = true"
     >

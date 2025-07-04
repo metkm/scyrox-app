@@ -59,7 +59,7 @@ pub enum MouseEepromAddr {
     Ripple = 0xB1,
     MovingOffLight = 0xB3,
     PerformanceState = 0xB5,
-    Performance = 0xB7,
+    PerformanceTime = 0xB7,
     SensorMode = 0xB9,
     KeyFunction = 0x60,
 

@@ -116,6 +116,7 @@ pub fn run() {
             commands::device::update_dpi_value,
             commands::device::set_key,
             commands::device::set_key_multimedia,
+            commands::device::set_performance_time,
             commands::app::set_minimize_to_tray,
             commands::app::get_minimize_to_tray
         ])

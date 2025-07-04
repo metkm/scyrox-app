@@ -40,11 +40,11 @@ impl DpiValue {
 
 #[derive(serde::Serialize)]
 pub struct MouseConfig {
-    // version: String,
     report_rate: u16,
     dpi_values: Vec<DpiValue>,
     current_dpi_index: u8,
     max_dpi_index: u8,
+    sleep_time: u8
 }
 
 impl MouseConfig {
@@ -91,6 +91,7 @@ impl MouseConfig {
                 .get(MouseEepromAddr::CurrentDPI as usize)
                 .unwrap_or(&0),
             max_dpi_index: *buffer.get(MouseEepromAddr::MaxDPI as usize).unwrap_or(&0),
+            sleep_time: *buffer.get(MouseEepromAddr::SleepTime as usize).unwrap_or(&0)
         }
     }
 }

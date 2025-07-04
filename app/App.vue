@@ -53,7 +53,7 @@ onMounted(async () => {
 
       <div
         v-if="mouseConfig"
-        class="grow flex items-center justify-center gap-14 overflow-hidden max-w-2xl w-full mx-auto"
+        class="grow flex items-center justify-center gap-14 overflow-hidden max-w-4xl w-full mx-auto"
       >
         <TheKeys />
 
@@ -70,6 +70,8 @@ onMounted(async () => {
               open: true,
             }"
           />
+
+          <TheSleepTime :sleep-time="mouseConfig.sleep_time" />
         </div>
       </div>
     </main>

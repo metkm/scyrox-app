@@ -243,3 +243,19 @@ pub fn set_key_multimedia(
 
     Ok(())
 }
+
+#[tauri::command]
+pub fn set_performance_time(
+    state: State<'_, Mutex<models::AppState>>,
+    value: u8
+) -> Result<(), AppError> {
+    let state = state.lock().unwrap();
+
+    let Some(device) = &state.device else {
+        return Err(AppError::DeviceNotFound);
+    };
+
+    write_eeprom(device, Command::WriteFlashData, MouseEepromAddr::PerformanceTime as u16, &[value, 0x55 - value], 2)?;
+
+    Ok(())
+}

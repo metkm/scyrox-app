@@ -60,49 +60,6 @@ export const mouseEepromAddr = {
   Macro: 0x0300,
 } as const
 
-export type DpiValue = {
-  value: number
-  color: string
-}
-
-export const defaultConfig = {
-  version: '',
-  batteryLevel: 0,
-  batteryCharging: false,
-  batteryVoltage: 0,
-  dpiValues: [] as DpiValue[],
-  currentDpiIndex: 0,
-  maxDpi: 0,
-  reportRate: 1000,
-  dpiEffect: {
-    mode: 0,
-    brightness: 0,
-    speed: 0,
-    state: 0,
-  },
-  lightEffect: {
-    mode: 0,
-    color: 0,
-    speed: 0,
-    brightness: 0,
-    state: 0,
-    time: 0,
-  },
-  debounceTime: 0,
-  sensor: {
-    motionSync: 0,
-    sleepTime: 0,
-    angle: 0,
-    ripple: 0,
-    performance: 0,
-    mode: 0,
-    lod: 0,
-  },
-  movingOffLight: 0,
-}
-
-export const reportId = 0x08
-
 export const multimediaKeys: {
   [key: number]: number
 } = {

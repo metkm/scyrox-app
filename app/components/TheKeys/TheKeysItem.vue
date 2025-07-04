@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
+import { invoke } from '@tauri-apps/api/core'
 import { multimediaKeys } from '~/constants'
-import { setKeyFunction, setMultimedia } from '~/device'
-import { useDevice } from '~/hooks/useDevice'
 
 const props = defineProps<{
   keyIndex: number
 }>()
-
-const { device } = useDevice()
 
 const selectedLabel = ref()
 
 const handleKeyUpdate = async (label: string, value: number[]) => {
   selectedLabel.value = label
 
-  await setKeyFunction(device.value, props.keyIndex, value)
+  await invoke('set_key', {
+    index: props.keyIndex,
+    value,
+  })
 }
 
 const buttonLabels = ['Left button', 'Right button', 'Middle button', 'Back button', 'Forward button']
@@ -40,7 +40,10 @@ const multimediaItems = computed(() => {
         const multiKey = multimediaKeys[index]
 
         if (multiKey) {
-          await setMultimedia(device.value, props.keyIndex, multiKey)
+          await invoke('set_key_multimedia', {
+            index: props.keyIndex,
+            value: multiKey,
+          })
         }
 
         handleKeyUpdate(label, [5, 0, 0])
@@ -74,7 +77,7 @@ const items = computed(() => {
 <template>
   <UDropdownMenu
     :items="items"
-    class="absolute -translate-x-4 top-24 right-0"
+    class="absolute"
   >
     <slot :selected-label="selectedLabel" />
   </UDropdownMenu>

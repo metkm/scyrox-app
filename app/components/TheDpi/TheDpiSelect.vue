@@ -36,7 +36,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <AppContainer title="Dpi value">
+  <AppContainer
+    title="Dpi value"
+    icon="i-lucide-circle-ellipsis"
+  >
     <div class="flex flex-col gap-4">
       <USlider
         v-model="dpi.value"
@@ -51,7 +54,7 @@ onMounted(() => {
         <li
           v-for="(_dpi, index) in dpiList"
           :key="_dpi.value"
-          class="grow"
+          class="flex-1"
         >
           <TheDpiSelectItem
             :dpi="_dpi"

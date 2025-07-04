@@ -42,7 +42,7 @@ const updateDpiValue = async () => {
     </UButton>
 
     <div
-      class="h-1 w-full rounded-full"
+      class="w-full h-16 rounded-(--ui-radius)"
       :style="{ backgroundColor: dpiColor }"
     />
 

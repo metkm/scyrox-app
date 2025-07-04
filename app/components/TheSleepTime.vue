@@ -45,8 +45,11 @@ const secondsToFormat = (value: number) => {
 </script>
 
 <template>
-  <AppContainer title="Sleep time">
-    <ol class="flex items-center gap-4">
+  <AppContainer
+    title="Sleep time"
+    icon="i-lucide-moon"
+  >
+    <ol class="flex items-center flex-wrap gap-4">
       <li
         v-for="duration in sleepDurations"
         :key="duration"

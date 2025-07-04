@@ -22,22 +22,20 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <AppContainer title="Battery">
-    <div class="relative flex h-12 -m-6 bg-elevated">
-      <div
-        class="bg-primary/80 transition-all"
-        :style="{ width: `${battery.level}%` }"
-      />
+  <AppContainer
+    title="Battery"
+    icon="i-lucide-battery"
+  >
+    <div class="flex flex-col gap-2">
+      <p class="font-medium text-sm">
+        {{ battery.level }}%
+      </p>
 
-      <div
-        class="flex items-center absolute inset-0 px-2 transition-all"
-        :style="{
-          paddingLeft: `calc(${battery.level / 2}% + calc(var(--spacing) * 2))`,
-        }"
-      >
-        <p class="text-lg font-medium text-shadow-2xs text-shadow-black -translate-x-1/2">
-          {{ `${battery.level}%${battery.charging ? ' (charging)' : ''}` }}
-        </p>
+      <div class="bg-elevated rounded-full overflow-hidden">
+        <div
+          class="h-2 bg-primary/80 transition-all"
+          :style="{ width: `${battery.level}%` }"
+        />
       </div>
     </div>
   </AppContainer>

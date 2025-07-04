@@ -1,5 +1,5 @@
 <template>
-  <div class="background bg-contain bg-center bg-no-repeat aspect-[295/557] w-full max-h-full max-w-2xs relative">
+  <div class="background bg-contain bg-center bg-no-repeat aspect-[295/557] w-56 relative">
     <TheKeysItem
       v-slot="{ selectedLabel }"
       :key-index="1"

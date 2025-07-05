@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { invoke } from '@tauri-apps/api/core'
+import { clearInterval, setInterval } from 'worker-timers'
 import type { Battery } from '~/types'
 
 const _battery = await invoke<Battery>('get_mouse_battery')

@@ -2,7 +2,7 @@ use hidapi::HidDevice;
 
 use crate::{
     device::{constants::Command, hid::write_eeprom},
-    models::AppError,
+    models::error::AppError,
 };
 
 pub fn read(

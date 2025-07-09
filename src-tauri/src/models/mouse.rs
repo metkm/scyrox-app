@@ -1,42 +1,6 @@
-use hidapi::HidDevice;
-use thiserror::Error;
-
-use crate::device::{
-    self, constants::MouseEepromAddr, utils::{buffer_to_hex, voltage_to_level}
-};
-
-pub struct AppState {
-    pub device: Option<HidDevice>,
-}
-
-impl Default for AppState {
-    fn default() -> Self {
-        Self {
-            device: device::get_device()
-        }
-    }
-}
-
-#[derive(serde::Serialize)]
-pub struct DpiValue {
-    value: u32,
-    color: String,
-}
-
-impl DpiValue {
-    pub fn bytes_to_value(bytes: &[u8; 4]) -> i32 {
-        let low_bits = bytes.first().unwrap_or(&0);
-        let high_bits = bytes.get(2).unwrap_or(&0);
-
-        let masked = *high_bits as i32 * MouseEepromAddr::DPIValue as i32;
-        let high = masked >> 2;
-
-        let mut value = *low_bits as i32 + (high << 8);
-        value = (value + 1) * 50;
-
-        value
-    }
-}
+use crate::device::constants::MouseEepromAddr;
+use crate::device::utils::buffer_to_hex;
+use crate::models::dpi::DpiValue;
 
 #[derive(serde::Serialize)]
 pub struct MouseConfig {
@@ -93,45 +57,5 @@ impl MouseConfig {
             max_dpi_index: *buffer.get(MouseEepromAddr::MaxDPI as usize).unwrap_or(&0),
             sleep_time: *buffer.get(MouseEepromAddr::SleepTime as usize).unwrap_or(&0)
         }
-    }
-}
-
-#[derive(serde::Serialize)]
-pub struct Battery {
-    pub charging: bool,
-    pub level: u8,
-}
-
-impl Battery {
-    pub fn from_buffer(buffer: &[u8]) -> Battery {
-        let voltage =
-            i16::from_be_bytes([*buffer.get(8).unwrap_or(&0), *buffer.get(9).unwrap_or(&0)]);
-        let level = voltage_to_level(voltage);
-
-        Battery {
-            charging: buffer.get(7).unwrap_or(&0) == &1,
-            level,
-        }
-    }
-}
-
-#[derive(Error, Debug)]
-pub enum AppError {
-    #[error("device not found")]
-    DeviceNotFound,
-    #[error("hid error")]
-    HidError(#[from] hidapi::HidError),
-    #[error("invalid value")]
-    InvalidValue,
-    #[error("crc problem")]
-    CrcProblem,
-}
-
-impl serde::Serialize for AppError {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.to_string().as_ref())
     }
 }

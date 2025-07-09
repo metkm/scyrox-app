@@ -6,7 +6,7 @@ use crate::device;
 use crate::device::constants::{Command, MouseEepromAddr};
 use crate::device::hid::write_eeprom;
 use crate::device::utils::get_usb_crc;
-use crate::models::{self, AppError, Battery, MouseConfig};
+use crate::models::{self, error::AppError, battery::Battery, mouse::MouseConfig};
 
 #[tauri::command]
 pub fn set_current_dpi_index(

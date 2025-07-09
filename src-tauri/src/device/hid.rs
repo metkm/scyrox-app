@@ -5,7 +5,7 @@ use crate::{
         constants::{Command, REPORT_ID},
         utils::get_usb_crc,
     },
-    models::AppError,
+    models::error::AppError,
 };
 
 pub fn write_eeprom(

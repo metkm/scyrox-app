@@ -70,13 +70,22 @@ pub fn handle_setup(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
             tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
 
             {
-                let state = state.lock().unwrap();
+                println!("inside loop");
+                let mut state = state.lock().unwrap();
 
                 let Some(device) = &state.device else {
+                    if state.reconnect().is_err() {
+                        eprintln!("device connection lost and can't reconnect");
+                    }
+                    
                     continue;
                 };
 
                 let Ok(read_count) = device.read_timeout(&mut buffer, 50) else {
+                    if state.reconnect().is_err() {
+                        eprintln!("device connection lost and can't reconnect");
+                    }
+
                     continue;
                 };
 
@@ -118,7 +127,8 @@ pub fn run() {
             commands::device::set_key_multimedia,
             commands::device::set_performance_time,
             commands::app::set_minimize_to_tray,
-            commands::app::get_minimize_to_tray
+            commands::app::get_minimize_to_tray,
+            commands::device::reconnect
         ])
         .plugin(tauri_plugin_store::Builder::default().build())
         .setup(handle_setup)

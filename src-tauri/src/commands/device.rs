@@ -259,3 +259,13 @@ pub fn set_performance_time(
 
     Ok(())
 }
+
+#[tauri::command]
+pub fn reconnect(
+    state: State<'_, Mutex<models::AppState>>
+) -> Result<(), AppError> {
+    let mut state = state.lock().unwrap();
+    state.reconnect()?;
+
+    Ok(())
+}

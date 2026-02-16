@@ -12,18 +12,18 @@ struct Filter {
     pub product_id: u16,
 }
 
-const FILTERS: [Filter; 3] = [
+const FILTERS: [Filter; 2] = [
     Filter {
         vendor_id: 13652,
-        product_id: 62967,
+        product_id: 62967, // when connected through the dock, not directly to the computer
     },
+    // Filter {
+    //     vendor_id: 13652,
+    //     product_id: 62964,
+    // },
     Filter {
         vendor_id: 13652,
-        product_id: 62964,
-    },
-    Filter {
-        vendor_id: 13652,
-        product_id: 62966,
+        product_id: 62966, // when directly connected to the computer, not through the dock
     },
 ];
 
@@ -51,7 +51,9 @@ pub fn get_device() -> Option<HidDevice> {
             continue;
         };
 
-        if report_descriptor.input_reports.len() != 1 || report_descriptor.output_reports.len() != 1
+
+        println!("Input reports: {}, Output reports: {}", report_descriptor.input_reports.len(), report_descriptor.output_reports.len());
+        if report_descriptor.input_reports.len() != 1 && report_descriptor.output_reports.len() != 1
         {
             continue;
         }
